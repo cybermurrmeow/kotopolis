@@ -995,29 +995,50 @@ def utility_processor():
         'now': datetime.now()
     }
 
+# ====================== КОНТЕКСТНЫЙ ПРОЦЕССОР ======================
+@app.context_processor
+def utility_processor():
+    """Добавляет глобальные переменные во все шаблоны"""
+    def get_current_year():
+        return datetime.now().year
+    
+    def get_total_cats():
+        return Cat.query.count()
+    
+    def get_available_cats():
+        return Cat.query.filter_by(status='В приюте').count()
+    
+    return {
+        'current_year': get_current_year(),
+        'total_cats': get_total_cats(),
+        'available_cats': get_available_cats(),
+        'now': datetime.now()
+    }
+
+
+# ====================== СОЗДАНИЕ БАЗЫ ДАННЫХ ======================
+# ЭТОТ КОД ВЫПОЛНЯЕТСЯ ПРИ ЗАПУСКЕ (И gunicorn, И python)
+with app.app_context():
+    db.create_all()
+    print("✅ Таблицы базы данных созданы")
+    
+    admin = User.query.filter_by(role='admin').first()
+    if not admin:
+        admin_user = User(
+            username='admin',
+            email='admin@kotopolis.ru',
+            password=generate_password_hash('admin123', method='pbkdf2:sha256'),
+            role='admin',
+            email_confirmed=True,
+            email_confirmed_at=datetime.utcnow()
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("✅ Администратор создан: admin / admin123")
+    
+    print("🐱 Котополис запущен!")
+
 
 # ====================== ЗАПУСК ПРИЛОЖЕНИЯ ======================
 if __name__ == '__main__':
-    # Создаем все таблицы в базе данных, если их нет
-    with app.app_context():
-        db.create_all()
-        
-        # Создаем администратора по умолчанию, если его нет
-        admin = User.query.filter_by(role='admin').first()
-        if not admin:
-            admin_user = User(
-                username='admin',
-                email='admin@kotopolis.ru',
-                password=generate_password_hash('admin123', method='pbkdf2:sha256'),
-                role='admin',
-                email_confirmed=True,
-                email_confirmed_at=datetime.utcnow()
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("✅ Администратор создан: admin / admin123")
-        
-        print("🐱 Котополис запущен!")
-        print("📱 Откройте в браузере: http://127.0.0.1:5000")
-    
     app.run(debug=True, host='0.0.0.0', port=5000)
