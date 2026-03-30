@@ -24,6 +24,13 @@ except:
         FONT_NAME = 'Helvetica'
 
 
+def get_days_in_shelter(cat):
+    """Рассчитывает количество дней в приюте"""
+    if cat.arrival_date:
+        return (date.today() - cat.arrival_date).days
+    return 0
+
+
 def export_to_excel(cats):
     """Экспорт данных в Excel"""
     data = []
@@ -32,7 +39,8 @@ def export_to_excel(cats):
             'ID': cat.id,
             'Имя': cat.name,
             'Кличка': cat.nickname or '-',
-            'Возраст': cat.age if cat.age else '-',
+            'Возраст (мес)': cat.age if cat.age else '-',
+            'Возраст (лет)': f"{cat.age/12:.1f}" if cat.age else '-',
             'Порода': cat.breed or '-',
             'Пол': cat.gender or '-',
             'Окрас': cat.color or '-',
@@ -40,7 +48,7 @@ def export_to_excel(cats):
             'Настроение': cat.mood or '-',
             'Любимая игрушка': cat.favorite_toy or '-',
             'Статус': cat.status,
-            'Дней в приюте': cat.days_in_shelter,
+            'Дней в приюте': get_days_in_shelter(cat),
             'Здоровье': cat.health or '-',
             'Последняя прививка': cat.last_vacc_date.strftime('%d.%m.%Y') if cat.last_vacc_date else '-',
             'Следующая прививка': cat.next_vacc_date.strftime('%d.%m.%Y') if cat.next_vacc_date else '-',
@@ -142,13 +150,13 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     elements.append(stats_table)
     elements.append(Spacer(1, 0.5*cm))
     
-    # Возрастные группы
+    # Возрастные группы (возраст в годах)
     elements.append(Paragraph("Возрастные группы", section_style))
     
-    kittens = sum(1 for c in cats if c.age is not None and c.age < 1)
-    young = sum(1 for c in cats if c.age is not None and 1 <= c.age <= 3)
-    adult = sum(1 for c in cats if c.age is not None and 4 <= c.age <= 7)
-    senior = sum(1 for c in cats if c.age is not None and c.age >= 8)
+    kittens = sum(1 for c in cats if c.age is not None and c.age < 12)  # <1 года = <12 месяцев
+    young = sum(1 for c in cats if c.age is not None and 12 <= c.age <= 36)  # 1-3 года
+    adult = sum(1 for c in cats if c.age is not None and 36 < c.age <= 84)  # 4-7 лет
+    senior = sum(1 for c in cats if c.age is not None and c.age > 84)  # 8+ лет
     
     age_data = [
         ['Категория', 'Количество', 'Процент'],
@@ -178,13 +186,13 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     
     vaccinated = sum(1 for c in cats if c.is_vaccinated)
     sterilized = sum(1 for c in cats if c.is_sterilized)
-    need_vacc = sum(1 for c in cats if not c.is_vaccinated or (c.last_vacc_date and (date.today() - c.last_vacc_date).days > 365))
+    need_vacc_count = sum(1 for c in cats if not c.is_vaccinated or (c.last_vacc_date and (date.today() - c.last_vacc_date).days > 365))
     
     medical_data = [
         ['Показатель', 'Количество', 'Процент'],
         ['Вакцинированы', str(vaccinated), f"{vaccinated/total*100:.1f}%" if total > 0 else '0%'],
         ['Стерилизованы', str(sterilized), f"{sterilized/total*100:.1f}%" if total > 0 else '0%'],
-        ['Требуют прививки', str(need_vacc), f"{need_vacc/total*100:.1f}%" if total > 0 else '0%']
+        ['Требуют прививки', str(need_vacc_count), f"{need_vacc_count/total*100:.1f}%" if total > 0 else '0%']
     ]
     
     medical_table = Table(medical_data, colWidths=[6*cm, 3*cm, 3*cm])
@@ -206,12 +214,15 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     
     cats_data = [['Имя', 'Возраст', 'Порода', 'Статус', 'Дней в приюте']]
     for cat in cats[:20]:
+        age_str = f"{cat.age} мес." if cat.age else '-'
+        if cat.age and cat.age >= 12:
+            age_str = f"{cat.age/12:.1f} лет"
         cats_data.append([
             cat.name,
-            str(cat.age) if cat.age else '-',
+            age_str,
             cat.breed or '-',
             cat.status,
-            str(cat.days_in_shelter)
+            str(get_days_in_shelter(cat))
         ])
     
     cats_table = Table(cats_data, colWidths=[4*cm, 2.5*cm, 4*cm, 3.5*cm, 2.5*cm])
@@ -240,10 +251,11 @@ def calculate_stats(cats):
     treatment = sum(1 for c in cats if c.status == 'На лечении')
     quarantine = sum(1 for c in cats if c.status == 'В карантине')
     
-    kittens = sum(1 for c in cats if c.age and c.age < 1)
-    young = sum(1 for c in cats if c.age and 1 <= c.age <= 3)
-    adult = sum(1 for c in cats if c.age and 4 <= c.age <= 7)
-    senior = sum(1 for c in cats if c.age and c.age >= 8)
+    # Возраст в месяцах
+    kittens = sum(1 for c in cats if c.age is not None and c.age < 12)
+    young = sum(1 for c in cats if c.age is not None and 12 <= c.age <= 36)
+    adult = sum(1 for c in cats if c.age is not None and 36 < c.age <= 84)
+    senior = sum(1 for c in cats if c.age is not None and c.age > 84)
     
     vaccinated = sum(1 for c in cats if c.is_vaccinated)
     sterilized = sum(1 for c in cats if c.is_sterilized)
@@ -261,6 +273,10 @@ def calculate_stats(cats):
         if cat.mood:
             moods[cat.mood] = moods.get(cat.mood, 0) + 1
     
+    # Средний возраст в годах
+    ages_months = [c.age for c in cats if c.age is not None]
+    avg_age_years = (sum(ages_months) / len(ages_months) / 12) if ages_months else 0
+    
     return {
         'total': total,
         'in_shelter': in_shelter,
@@ -277,5 +293,5 @@ def calculate_stats(cats):
         'vaccination_rate': (vaccinated / total * 100) if total > 0 else 0,
         'sterilization_rate': (sterilized / total * 100) if total > 0 else 0,
         'moods': moods,
-        'avg_age': sum(c.age for c in cats if c.age) / total if total > 0 else 0
+        'avg_age': avg_age_years
     }
