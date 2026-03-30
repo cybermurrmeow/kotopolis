@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="dashboard-title">
+            <i class="fas fa-chart-line"></i> Дашборд Котополиса 🐱
+        </h1>
+        <div>
+            <span class="badge bg-pink p-2">
+                <i class="fas fa-calendar"></i> 
+                <script>document.write(new Date().getFullYear())</script>
+            </span>
+        </div>
+    </div>
+    
+    <!-- ========== СТАТИСТИЧЕСКИЕ КАРТОЧКИ ========== -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card total">
+                <div class="stat-icon"><i class="fas fa-cat"></i></div>
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Всего котиков</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card shelter">
+                <div class="stat-icon"><i class="fas fa-home"></i></div>
+                <div class="stat-value">{{ stats.in_shelter }}</div>
+                <div class="stat-label">В приюте</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card adopted">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-value">{{ stats.adopted }}</div>
+                <div class="stat-label">Нашли дом</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card treatment">
+                <div class="stat-icon"><i class="fas fa-thermometer-half"></i></div>
+                <div class="stat-value">{{ stats.treatment + stats.quarantine }}</div>
+                <div class="stat-label">На лечении</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ГРАФИКИ ========== -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-smile"></i> Настроения котиков</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.moods %}
+                        {% for mood, count in stats.moods.items() %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ mood }}</span>
+                                <span class="fw-bold text-pink">{{ count }}</span>
+                            </div>
+                            <div class="progress">
+                                {% set percent = (count / stats.total * 100) if stats.total > 0 else 0 %}
+                                <div class="progress-bar bg-pink" style="width: {{ percent }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Нет данных о настроениях</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Распределение по статусам</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>🏠 В приюте</span>
+                            <span class="fw-bold text-pink">{{ stats.in_shelter }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set shelter_percent = (stats.in_shelter / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-secondary" style="width: {{ shelter_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>❤️ Усыновлён</span>
+                            <span class="fw-bold text-pink">{{ stats.adopted }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set adopted_percent = (stats.adopted / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-success" style="width: {{ adopted_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>🏥 На лечении</span>
+                            <span class="fw-bold text-pink">{{ stats.treatment }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set treatment_percent = (stats.treatment / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-warning" style="width: {{ treatment_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>⚠️ В карантине</span>
+                            <span class="fw-bold text-pink">{{ stats.quarantine }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set quarantine_percent = (stats.quarantine / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-danger" style="width: {{ quarantine_percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ВОЗРАСТНЫЕ ГРУППЫ ========== -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Возрастные группы</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>🐱 Котята (&lt;1 года)</span>
+                            <span class="fw-bold text-pink">{{ stats.kittens }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set kittens_percent = (stats.kittens / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-pink" style="width: {{ kittens_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>😺 Молодые (1-3 года)</span>
+                            <span class="fw-bold text-pink">{{ stats.young }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set young_percent = (stats.young / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-pink" style="width: {{ young_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>😸 Взрослые (4-7 лет)</span>
+                            <span class="fw-bold text-pink">{{ stats.adult }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set adult_percent = (stats.adult / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-pink" style="width: {{ adult_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>😿 Пожилые (8+ лет)</span>
+                            <span class="fw-bold text-pink">{{ stats.senior }}</span>
+                        </div>
+                        <div class="progress">
+                            {% set senior_percent = (stats.senior / stats.total * 100) if stats.total > 0 else 0 %}
+                            <div class="progress-bar bg-pink" style="width: {{ senior_percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-syringe"></i> Медицинская статистика</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <h2 class="text-pink">{{ "%.0f"|format(stats.vaccination_rate) }}%</h2>
+                        <p class="text-muted">вакцинированных</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ stats.vaccination_rate }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h2 class="text-pink">{{ "%.0f"|format(stats.sterilization_rate) }}%</h2>
+                        <p class="text-muted">стерилизованных</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: {{ stats.sterilization_rate }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-0"><i class="fas fa-chart-line"></i> Средний возраст: <strong>{{ "%.1f"|format(stats.avg_age) }} лет</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Быстрые действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('add_cat') }}" class="btn btn-pink">
+                            <i class="fas fa-plus"></i> Добавить нового котика
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('export_excel') }}" class="btn btn-outline-pink">
+                            <i class="fas fa-file-excel"></i> Экспорт в Excel
+                        </a>
+                        <a href="{{ url_for('report') }}" class="btn btn-outline-pink">
+                            <i class="fas fa-file-pdf"></i> Экспорт в PDF
+                        </a>
+                        <!-- Ссылка на уведомления удалена -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ПОПУЛЯРНЫЕ ПОРОДЫ И СКОРО В ДОБРЫЕ РУКИ ========== -->
+<div class="row g-4 mb-5">
+    <!-- Популярные породы -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Популярные породы</h5>
+            </div>
+            <div class="card-body">
+                {% set breed_dict = {} %}
+                {% for cat in cats %}
+                    {% set breed = cat.breed if cat.breed else 'Дворняжка' %}
+                    {% if breed in breed_dict %}
+                        {% set _ = breed_dict.update({breed: breed_dict[breed] + 1}) %}
+                    {% else %}
+                        {% set _ = breed_dict.update({breed: 1}) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% set breed_items = [] %}
+                {% for breed, count in breed_dict.items() %}
+                    {% set _ = breed_items.append((count, breed)) %}
+                {% endfor %}
+                {% set breed_items = breed_items|sort(reverse=True) %}
+                
+                {% for count, breed in breed_items[:5] %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ breed }}</span>
+                        <span class="fw-bold text-pink">{{ count }}</span>
+                    </div>
+                    <div class="progress">
+                        {% set percent = (count / stats.total * 100) if stats.total > 0 else 0 %}
+                        <div class="progress-bar bg-pink" style="width: {{ percent }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+   <!-- ========== Котики, которые скоро будут готовы к усыновлению ========== -->
+<div class="col-md-6">
+    <div class="card h-100">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-calendar-check"></i> Скоро в добрые руки</h5>
+        </div>
+        <div class="card-body">
+            {% set soon_ready = [] %}
+            {% for cat in cats %}
+                {% if cat.status == 'На лечении' or cat.status == 'В карантине' %}
+                    {% set _ = soon_ready.append(cat) %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if soon_ready|length > 0 %}
+                {% for cat in soon_ready[:3] %}
+                <div class="alert alert-info stay-alert mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if cat.photo_path %}
+                                <img src="{{ url_for('static', filename=cat.photo_path) }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                                <div class="bg-pink rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-cat text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong>{{ cat.name }}</strong>
+                            <small class="d-block text-muted">
+                                {% if cat.health %}
+                                    {{ cat.health }}
+                                {% else %}
+                                    {% if cat.status == 'На лечении' %}🏥 На лечении{% else %}⚠️ В карантине{% endif %}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                    <p class="text-muted mb-0">Все котики здоровы!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+    <!-- ========== НАПОМИНАНИЯ О ПРИВИВКАХ ========== -->
+{% if need_vacc and need_vacc|length > 0 %}
+<div class="card border-warning mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> 🔴 Требуют внимания! ({{ need_vacc|length }} котиков)</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for cat in need_vacc %}
+            <div class="col-md-4 mb-2">
+                <div class="alert alert-warning stay-alert mb-0" role="alert">
+                    <i class="fas fa-cat"></i> <strong>{{ cat.name }}</strong><br>
+                    <small>Последняя прививка: 
+                    {% if cat.last_vacc_date %}
+                        {{ cat.last_vacc_date.strftime('%d.%m.%Y') }}
+                    {% else %}
+                        Нет данных
+                    {% endif %}
+                    </small>
+                    <a href="{{ url_for('edit_cat', cat_id=cat.id) }}" class="btn btn-sm btn-warning float-end">Обновить</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-success stay-alert">
+    <i class="fas fa-check-circle"></i> Отлично! Все прививки актуальны!
+</div>
+{% endif %}
+
+    <!-- ========== ПОСЛЕДНИЕ ДОБАВЛЕННЫЕ КОТИКИ ========== -->
+    {% if recent_cats %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-clock"></i> Последние добавленные котики</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for cat in recent_cats %}
+                <div class="col-md-3 mb-3">
+                    <div class="text-center">
+                        {% if cat.photo_path %}
+                            <img src="{{ url_for('static', filename=cat.photo_path) }}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-pink d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; margin: 0 auto;">
+                                <i class="fas fa-cat fa-3x text-white"></i>
+                            </div>
+                        {% endif %}
+                        <h6 class="mt-2 mb-0">{{ cat.name }}</h6>
+                        <small class="text-muted">{{ cat.arrival_date.strftime('%d.%m.%Y') if cat.arrival_date else 'Дата неизвестна' }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Дополнительные милые стили для дашборда */
+.dashboard-title {
+    background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+}
+
+@supports not (background-clip: text) {
+    .dashboard-title {
+        color: #FF69B4;
+        background: none;
+        -webkit-text-fill-color: initial;
+    }
+}
+
+.text-pink {
+    color: #FF69B4 !important;
+}
+
+.bg-pink {
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+}
+
+.btn-pink {
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    color: white;
+    border: none;
+}
+
+.btn-pink:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+    color: white;
+}
+
+.btn-outline-pink {
+    background: transparent;
+    border: 2px solid #FF69B4;
+    color: #FF69B4;
+}
+
+.btn-outline-pink:hover {
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.15);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #FF69B4;
+}
+
+.stat-label {
+    color: #9B7B7B;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.progress {
+    border-radius: 10px;
+    height: 8px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 105, 180, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #FFF0F5 0%, #FFE8EE 100%);
+    border-bottom: 2px solid #FFB6C1;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 15px 20px;
+}
+
+.card-header h5 {
+    color: #C71585;
+    font-weight: 600;
+}
+</style>
+{% endblock %}

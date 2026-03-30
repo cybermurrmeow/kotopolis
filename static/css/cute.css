@@ -1,0 +1,685 @@
+/* Милые шрифты и стили */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+
+* {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 50%, #FFF0F5 100%);
+    color: #6B4E4E;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Летающие сердечки */
+body::before {
+    content: "❤️";
+    position: fixed;
+    bottom: 0;
+    left: 10%;
+    font-size: 20px;
+    opacity: 0.3;
+    animation: floatHeart 15s infinite linear;
+    pointer-events: none;
+    z-index: 999;
+}
+
+body::after {
+    content: "🐱";
+    position: fixed;
+    bottom: 0;
+    right: 10%;
+    font-size: 24px;
+    opacity: 0.3;
+    animation: floatHeart 12s infinite linear reverse;
+    pointer-events: none;
+    z-index: 999;
+}
+
+@keyframes floatHeart {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ==================== НАВИГАЦИЯ ==================== */
+.navbar-custom {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 5px 25px rgba(255, 105, 180, 0.15);
+    padding: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom.scrolled {
+    padding: 10px 0;
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 50%, #FFB6C1 100%);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navbar-brand::before {
+    content: "🐱";
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover::before {
+    opacity: 1;
+    left: -35px;
+}
+
+@supports not (background-clip: text) {
+    .navbar-brand {
+        color: #FF69B4;
+        background: none;
+        -webkit-text-fill-color: initial;
+    }
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.nav-link {
+    font-weight: 600;
+    color: #8B6B6B !important;
+    transition: all 0.3s ease;
+    border-radius: 50px;
+    margin: 0 5px;
+    padding: 8px 18px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #FF69B4, #FF1493);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::before {
+    width: 80%;
+}
+
+.nav-link:hover {
+    background: #FFF0EA;
+    color: #FF69B4 !important;
+    transform: translateY(-2px);
+}
+
+/* ==================== КАРТОЧКИ КОТИКОВ ==================== */
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.cat-card {
+    background: white;
+    border-radius: 30px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    position: relative;
+    cursor: pointer;
+}
+
+.cat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 30px;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.cat-card:hover::after {
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3);
+}
+
+.cat-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(255, 105, 180, 0.2);
+}
+
+.cat-card-image {
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cat-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.cat-card:hover .cat-card-image img {
+    transform: scale(1.1);
+}
+
+.cat-card-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #FF69B4;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.cat-card-content {
+    padding: 20px;
+}
+
+.cat-card-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #6B4E4E;
+    margin-bottom: 10px;
+}
+
+.cat-card-info {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #9B7B7B;
+}
+
+.cat-card-info span i {
+    margin-right: 5px;
+    color: #FF69B4;
+}
+
+/* Кнопки на карточке котика */
+.cat-card-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* ==================== КНОПКИ ==================== */
+.btn {
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #FFB7B2 0%, #FF9B94 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 140, 140, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 140, 140, 0.4);
+    background: linear-gradient(135deg, #FF9B94 0%, #FF8E7A 100%);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid #FFB7B2;
+    color: #FF8E7A;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #FFB7B2 0%, #FF9B94 100%);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #C8E6E0 0%, #B8D6D0 100%);
+    color: #5B7B73;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #FFB7B2 0%, #FF9B94 100%);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #FFE5B4 0%, #FFD9A8 100%);
+    color: #8B7355;
+}
+
+/* ==================== СТАТИСТИКА НА ДАШБОРДЕ ==================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 25px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 105, 180, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(255, 105, 180, 0.15);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+}
+
+.stat-label {
+    color: #9B7B7B;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* ==================== ЗАГОЛОВКИ ==================== */
+.cute-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 50%, #FFB6C1 100%);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.6));
+    }
+}
+
+@supports not (background-clip: text) {
+    .cute-title {
+        color: #FF69B4;
+        background: none;
+        -webkit-text-fill-color: initial;
+    }
+}
+
+.cute-title::before {
+    content: "🐱 ";
+    font-size: 2rem;
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #FF69B4;
+}
+
+.cute-title::after {
+    content: " 🐱";
+    font-size: 2rem;
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #FF69B4;
+}
+
+/* ==================== ФОРМЫ ==================== */
+.form-control, .form-select {
+    border-radius: 15px;
+    border: 2px solid #FFE0D6;
+    padding: 12px 18px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #FF69B4;
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.2);
+    outline: none;
+    transform: scale(1.01);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #C71585;
+    margin-bottom: 8px;
+}
+
+/* ==================== АНИМАЦИИ ==================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-up {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.slide-left {
+    animation: slideInLeft 0.6s ease forwards;
+}
+
+.slide-right {
+    animation: slideInRight 0.6s ease forwards;
+}
+
+/* Задержки анимации */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* ==================== АЛАРТЫ ==================== */
+.alert-cute {
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(135deg, white 0%, #FFF5F5 100%);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #FF69B4;
+    animation: slideInRight 0.5s ease forwards;
+}
+
+/* ==================== СКРОЛЛБАР ==================== */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #FFE8E0 0%, #FFD8D0 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #FF69B4 #FFE8E0;
+}
+
+/* ==================== ФУТЕР ==================== */
+footer {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FF69B4 50%, #FF1493 100%);
+    color: white;
+    border-radius: 30px 30px 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '🐱 🐱 🐱';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 40px;
+    opacity: 0.1;
+    white-space: nowrap;
+}
+
+footer .fa-heart {
+    animation: heartbeat 1.5s ease infinite;
+    display: inline-block;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* ==================== ЛОАДЕР ==================== */
+.loader {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid #FFE0D6;
+    border-radius: 50%;
+    border-top-color: #FF69B4;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== ТУЛТИПЫ ==================== */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background: #FF69B4;
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover:before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+@media (max-width: 768px) {
+    .cute-title {
+        font-size: 1.8rem;
+    }
+    
+    .cute-title::before,
+    .cute-title::after {
+        font-size: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .cat-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .btn {
+        padding: 8px 18px;
+        font-size: 0.9rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+    
+    body::before,
+    body::after {
+        display: none;
+    }
+}
+
+/* ==================== ОПТИМИЗАЦИЯ ДЛЯ ПЕЧАТИ ==================== */
+@media print {
+    .navbar-custom,
+    .btn,
+    footer,
+    body::before,
+    body::after {
+        display: none;
+    }
+    
+    .card {
+        break-inside: avoid;
+        box-shadow: none;
+    }
+}

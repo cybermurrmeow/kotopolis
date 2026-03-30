@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-pink text-white text-center py-3">
+                <i class="fas fa-user-circle fa-3x mb-2"></i>
+                <h3 class="mb-0">Профиль пользователя</h3>
+                <p class="mb-0 small">{{ user.username }}</p>
+            </div>
+            <div class="card-body p-4">
+                <!-- Аватар -->
+                <div class="text-center mb-4">
+                    {% if user.avatar %}
+                        <img src="{{ url_for('static', filename=user.avatar) }}" 
+                             class="rounded-circle" 
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #ff69b4;">
+                    {% else %}
+                        <div class="rounded-circle bg-pink d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-4x text-white"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Информация -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="info-card p-3 bg-light rounded">
+                            <label class="text-muted">👤 Логин</label>
+                            <p class="fw-bold mb-0">{{ user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card p-3 bg-light rounded">
+                            <label class="text-muted">📧 Email</label>
+                            <p class="fw-bold mb-0">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card p-3 bg-light rounded">
+                            <label class="text-muted">👑 Роль</label>
+                            <p class="fw-bold mb-0">
+                                {% if user.role == 'admin' %}
+                                    <span class="text-pink">Администратор</span>
+                                {% elif user.role == 'volunteer' %}
+                                    <span class="text-success">Волонтёр</span>
+                                {% else %}
+                                    <span class="text-secondary">Пользователь</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card p-3 bg-light rounded">
+                            <label class="text-muted">📅 Дата регистрации</label>
+                            <p class="fw-bold mb-0">{{ user.created_at.strftime('%d.%m.%Y') if user.created_at else 'Неизвестно' }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- О себе -->
+                {% if user.bio %}
+                <div class="mb-4">
+                    <h5 class="text-pink"><i class="fas fa-info-circle"></i> О себе</h5>
+                    <hr>
+                    <p>{{ user.bio }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Кнопка только для админа при просмотре чужого профиля -->
+                {% if is_admin_view %}
+                <div class="text-center my-4 pt-3 border-top">
+                    <h5 class="text-pink mb-3">Действия администратора</h5>
+                    
+                    {% if user.role == 'volunteer' %}
+                        <form method="POST" action="{{ url_for('set_role', user_id=user.id) }}">
+                            <input type="hidden" name="role" value="user">
+                            <button type="submit" class="btn btn-warning btn-lg px-5">
+                                <i class="fas fa-user-minus"></i> Снять роль волонтёра
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('set_role', user_id=user.id) }}">
+                            <input type="hidden" name="role" value="volunteer">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-user-plus"></i> Назначить волонтёром
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Кнопки только для своего профиля -->
+                {% if not is_admin_view %}
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-pink">
+                        <i class="fas fa-edit"></i> Редактировать профиль
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-pink mt-2">
+                        <i class="fas fa-key"></i> Изменить пароль
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Вернуться на дашборд
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-card {
+    transition: transform 0.2s ease;
+}
+.info-card:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

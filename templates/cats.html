@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>🐱 Наши котики</h1>
+
+<!-- Фильтры -->
+<form method="GET" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="🔍 Поиск по имени" value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Все статусы</option>
+                {% for s in all_statuses %}
+                    <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="mood" class="form-select">
+    <option value="">Все настроения</option>
+    {% for m in all_moods %}
+        <option value="{{ m }}" {% if mood == m %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+</select>
+        </div>
+        <div class="col-md-2">
+            <select name="gender" class="form-select">
+                <option value="">Все полы</option>
+                {% for g in all_genders %}
+                    <option value="{{ g }}" {% if gender == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sort" class="form-select">
+                <option value="name" {% if sort == 'name' %}selected{% endif %}>По имени (А-Я)</option>
+                <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>По имени (Я-А)</option>
+                <option value="age_asc" {% if sort == 'age_asc' %}selected{% endif %}>По возрасту (молодые)</option>
+                <option value="age_desc" {% if sort == 'age_desc' %}selected{% endif %}>По возрасту (старшие)</option>
+                <option value="arrival_asc" {% if sort == 'arrival_asc' %}selected{% endif %}>Давно в приюте</option>
+                <option value="arrival_desc" {% if sort == 'arrival_desc' %}selected{% endif %}>Недавно в приюте</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="row g-3 mt-2">
+        <div class="col-md-3">
+            <select name="personality" class="form-select">
+                <option value="">Все характеры</option>
+                {% for p in all_personalities %}
+                    <option value="{{ p }}" {% if personality == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="activity_level" class="form-select">
+                <option value="">Все уровни активности</option>
+                {% for a in all_activity_levels %}
+                    <option value="{{ a }}" {% if activity_level == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="vocal" class="form-select">
+                <option value="">Все голоса</option>
+                {% for v in all_vocals %}
+                    <option value="{{ v }}" {% if vocal == v %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-12">
+            <button type="submit" class="btn btn-pink">🔍 Применить фильтры</button>
+            <a href="{{ url_for('cats') }}" class="btn btn-outline-secondary">Сбросить все</a>
+        </div>
+    </div>
+</form>
+
+<!-- Сетка карточек -->
+<div class="row">
+    {% for cat in cats %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <!-- 📸 Фото -->
+            {% if cat.photo_path %}
+                <img src="{{ url_for('static', filename=cat.photo_path) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
+            {% else %}
+                <div class="card-img-top bg-pink d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-cat fa-4x text-white"></i>
+                </div>
+            {% endif %}
+            
+            <div class="card-body">
+                <!-- 🐱 Имя + 🏷️ Кличка -->
+                <h5 class="card-title">{{ cat.name }}
+                    {% if cat.nickname %}
+                        <small class="text-muted">({{ cat.nickname }})</small>
+                    {% endif %}
+                </h5>
+                
+                <!-- 📌 Статус -->
+                <span class="badge bg-{% if cat.status == 'В приюте' %}secondary{% elif cat.status == 'Усыновлён' %}success{% elif cat.status == 'На лечении' %}warning{% else %}info{% endif %} mb-2">
+                    {{ cat.status }}
+                </span>
+                
+                <!-- 💉 Прививка -->
+                <span class="badge {% if cat.is_vaccinated %}bg-success{% else %}bg-warning{% endif %} mb-2">
+                    {% if cat.is_vaccinated %}
+                        💉 Вакцинирован
+                    {% else %}
+                        ⚠️ Не вакцинирован
+                    {% endif %}
+                </span>
+                
+                <!-- ✂️ Стерилизация -->
+                <span class="badge {% if cat.is_sterilized %}bg-success{% else %}bg-secondary{% endif %} mb-2">
+                    {% if cat.is_sterilized %}
+                        ✂️ Стерилизован
+                    {% else %}
+                        ❌ Не стерилизован
+                    {% endif %}
+                </span>
+                
+                <!-- 🎂 Возраст + 🐕 Порода -->
+                <p class="card-text mb-1"><strong>🎂 Возраст:</strong> {{ cat.age or '?' }} лет</p>
+                <p class="card-text mb-1"><strong>⚥ Пол:</strong> {{ cat.gender or 'Не указан' }}</p>
+                <p class="card-text mb-1"><strong>🐕 Порода:</strong> {{ cat.breed or 'Дворняжка' }}</p>
+                <p class="card-text mb-1"><strong>🐱 Характер:</strong> {{ cat.personality or 'Не указан' }}</p>
+                <p class="card-text mb-1"><strong>⚡ Активность:</strong> {{ cat.activity_level or 'Не указана' }}</p>
+                <p class="card-text mb-1"><strong>🎤 Голос:</strong> {{ cat.vocal or 'Не указан' }}</p>
+                <p class="card-text mb-1"><strong>😊 Настроение:</strong> {{ cat.mood or 'Неизвестно' }}</p>
+                
+                <!-- Кнопки -->
+                <div class="mt-3">
+                    <a href="{{ url_for('cat_details', cat_id=cat.id) }}" class="btn btn-sm btn-outline-pink">Подробнее</a>
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('edit_cat', cat_id=cat.id) }}" class="btn btn-sm btn-warning">Редактировать</a>
+                        <a href="{{ url_for('delete_cat', cat_id=cat.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить?')">Удалить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if cats|length == 0 %}
+<div class="alert alert-info text-center">
+    <i class="fas fa-info-circle"></i> Котики не найдены. Попробуйте изменить параметры поиска.
+</div>
+{% endif %}
+
+{% endblock %}

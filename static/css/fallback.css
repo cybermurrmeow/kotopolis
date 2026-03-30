@@ -1,0 +1,23 @@
+/* Fallback для браузеров без поддержки современных функций */
+.no-cssgradients .btn-primary,
+.no-cssgradients .navbar-brand,
+.no-cssgradients .cute-title {
+    background: #FF8E7A;
+    color: white;
+}
+
+.no-cssgradients .cute-title::before,
+.no-cssgradients .cute-title::after {
+    color: white;
+}
+
+.no-cssgradients .navbar-brand {
+    color: white;
+    -webkit-text-fill-color: white;
+}
+
+.no-cssgradients .btn-outline-primary {
+    background: transparent;
+    border: 2px solid #FF8E7A;
+    color: #FF8E7A;
+}

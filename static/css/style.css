@@ -1,0 +1,1059 @@
+/* ===== ОСНОВНЫЕ ЦВЕТА ===== */
+:root {
+    --pink-primary: #ff69b4;
+    --pink-light: #ffb6c1;
+    --pink-dark: #ff1493;
+    --pink-bg: #fff0f5;
+    --pink-gradient: linear-gradient(135deg, #ff69b4 0%, #ffb6c1 100%);
+    --shadow-pink: 0 5px 15px rgba(255, 105, 180, 0.3);
+}
+
+/* ===== ОБЩИЕ СТИЛИ ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
+    font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ===== АНИМАЦИИ ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ===== НАВИГАЦИЯ ===== */
+.navbar {
+    background: var(--pink-gradient);
+    box-shadow: var(--shadow-pink);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand i {
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.nav-link {
+    color: white !important;
+    transition: all 0.3s ease;
+    border-radius: 25px;
+    padding: 8px 18px !important;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ===== КАРТОЧКИ СТАТИСТИКИ ===== */
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-pink);
+}
+
+.stat-card.total {
+    border-bottom: 4px solid var(--pink-primary);
+}
+
+.stat-card.shelter {
+    border-bottom: 4px solid #ffa500;
+}
+
+.stat-card.adopted {
+    border-bottom: 4px solid #4caf50;
+}
+
+.stat-card.treatment {
+    border-bottom: 4px solid #2196f3;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--pink-primary);
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* ===== КАРТОЧКИ КОТОВ ===== */
+.cat-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.cat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-pink);
+}
+
+.cat-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cat-card:hover .cat-img {
+    transform: scale(1.05);
+}
+
+.cat-content {
+    padding: 15px;
+}
+
+.cat-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--pink-primary);
+    margin-bottom: 5px;
+}
+
+.cat-nickname {
+    color: #999;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.cat-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+}
+
+.cat-details span {
+    background: #f8f9fa;
+    padding: 3px 8px;
+    border-radius: 15px;
+    color: #666;
+}
+
+.cat-mood {
+    margin: 10px 0;
+    padding: 4px 10px;
+    background: var(--pink-bg);
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+/* ===== БЭДЖИ ВАКЦИНАЦИИ ===== */
+.vacc-badge {
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.vacc-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.vacc-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.vacc-danger {
+    background: #f8d7da;
+    color: #721c24;
+    animation: blink 1.5s infinite;
+}
+
+/* ===== КНОПКИ ===== */
+.btn-pink {
+    background: var(--pink-gradient);
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-pink:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-pink);
+    color: white;
+}
+
+.btn-outline-pink {
+    border: 2px solid var(--pink-primary);
+    background: transparent;
+    color: var(--pink-primary);
+    padding: 6px 18px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-pink:hover {
+    background: var(--pink-gradient);
+    color: white;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    background: #ffb300;
+    color: #333;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    color: white;
+}
+
+.cat-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+
+/* ===== ПАГИНАЦИЯ ===== */
+.pagination {
+    gap: 5px;
+}
+
+.page-item .page-link {
+    border-radius: 10px;
+    color: var(--pink-primary);
+    border: none;
+    padding: 6px 12px;
+}
+
+.page-item.active .page-link {
+    background: var(--pink-gradient);
+    color: white;
+}
+
+/* ===== КАРТОЧКИ ===== */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.card-header {
+    background: var(--pink-gradient);
+    color: white;
+    padding: 12px 15px;
+}
+
+.card-header h4, .card-header h5 {
+    color: white;
+    margin: 0;
+}
+
+/* ===== ФОРМЫ ===== */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #ffe4ec;
+    padding: 8px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--pink-primary);
+    box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* ===== АЛЕРТЫ ===== */
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+/* ===== ФУТЕР ===== */
+footer {
+    background: var(--pink-gradient);
+    color: white;
+    margin-top: auto;
+    padding: 15px 0;
+    text-align: center;
+}
+
+/* ===== ПРОГРЕСС БАРЫ ===== */
+.progress {
+    height: 6px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+.progress-bar {
+    border-radius: 5px;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 768px) {
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+    }
+    
+    .cat-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .cat-actions {
+        flex-direction: column;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* ===== СКРОЛЛБАР ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--pink-bg);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--pink-gradient);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--pink-dark);
+}
+
+/* ===== ТЕКСТОВЫЕ ЦВЕТА ===== */
+.text-pink {
+    color: var(--pink-primary);
+}
+
+.bg-pink {
+    background: var(--pink-gradient);
+}
+
+/* Анимация для меню */
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 80%;
+}
+
+.cat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cat-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cat-img {
+    transition: transform 0.5s ease;
+}
+
+.cat-card:hover .cat-img {
+    transform: scale(1.05);
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+
+/* Базовая настройка для всех элементов */
+* {
+    box-sizing: border-box;
+}
+
+/* Плавное изменение размеров */
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+    
+    /* Карточки на мобильных */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Отступы для контейнера */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Навигация на мобильных */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Для планшетов */
+@media (min-width: 769px) and (max-width: 1024px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+/* Для больших экранов */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Карточки котиков */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Изображения в карточках */
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.02);
+}
+
+/* Фильтры */
+.filter-section {
+    background: #fff5f5;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+/* Пагинация */
+.pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.page-link {
+    margin: 0 2px;
+    border-radius: 8px;
+}
+
+/* Модальные окна */
+.modal-dialog {
+    margin: 1.75rem auto;
+}
+
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-content {
+        border-radius: 15px;
+    }
+}
+
+/* Таблицы (для админки) */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Формы */
+.form-control, .form-select {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.25);
+}
+
+/* Кнопки */
+.btn {
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Уведомления */
+.alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Футер */
+footer {
+    background: #fff5f5;
+    border-top: 1px solid #ffe0e0;
+}
+
+/* Сетка карточек */
+.row {
+    margin-left: -12px;
+    margin-right: -12px;
+}
+
+.row > [class*="col-"] {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Адаптивные отступы */
+@media (max-width: 768px) {
+    .mt-4 {
+        margin-top: 1rem !important;
+    }
+    
+    .mb-4 {
+        margin-bottom: 1rem !important;
+    }
+    
+    .py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+}
+
+/* ========== ДОПОЛНИТЕЛЬНЫЕ АДАПТИВНЫЕ СТИЛИ ========== */
+
+/* Плавное изменение размеров для всех экранов */
+@media (max-width: 576px) {
+    /* Уменьшаем отступы на телефонах */
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    /* Уменьшаем размер шрифта заголовков */
+    h1 {
+        font-size: 1.6rem;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+    }
+    
+    h3 {
+        font-size: 1.2rem;
+    }
+    
+    /* Карточки на телефонах */
+    .cat-card {
+        margin-bottom: 15px;
+    }
+    
+    .cat-img {
+        height: 180px;
+    }
+    
+    /* Кнопки на телефонах */
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Статистика на телефонах */
+    .stat-card {
+        margin-bottom: 15px;
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 1.3rem;
+    }
+    
+    .stat-icon {
+        font-size: 1.8rem;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 400px) {
+    .cat-img {
+        height: 150px;
+    }
+    
+    .cat-name {
+        font-size: 1rem;
+    }
+    
+    .cat-details span {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+}
+
+/* Для экранов с высокой плотностью пикселей (Retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card, .cat-card, .stat-card {
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+}
+
+/* Для печати */
+@media print {
+    .navbar, footer, .btn, .cat-actions {
+        display: none;
+    }
+    
+    .card, .cat-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    body {
+        background: white;
+    }
+}
+
+/* Фикс для горизонтальной прокрутки на мобильных */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .row > [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+/* Плавное появление контента при загрузке */
+main {
+    animation: contentFadeIn 0.5s ease-out;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Улучшенная читаемость текста */
+body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Фикс для модальных окон на мобильных */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .modal-header {
+        padding: 12px 15px;
+    }
+    
+    .modal-footer {
+        padding: 12px 15px;
+    }
+}
+
+/* Фикс для форм на мобильных */
+@media (max-width: 576px) {
+    .form-control, .form-select {
+        font-size: 16px; /* Предотвращает масштабирование на iOS */
+        padding: 8px 12px;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+    }
+}
+
+/* Фикс для пагинации на мобильных */
+@media (max-width: 576px) {
+    .pagination {
+        gap: 3px;
+    }
+    
+    .page-link {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Фикс для карточек на планшетах */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .cat-img {
+        height: 180px;
+    }
+    
+    .stat-value {
+        font-size: 1.6rem;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+}
+
+/* Фикс для больших экранов (ультраширокие) */
+@media (min-width: 1920px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .cat-img {
+        height: 240px;
+    }
+    
+    .stat-value {
+        font-size: 2.2rem;
+    }
+}
+
+/* ========== ИСПРАВЛЕНИЕ ЦВЕТА ТЕКСТА В ФУТЕРЕ ========== */
+
+footer {
+    background: linear-gradient(135deg, #ff69b4 0%, #ff99cc 100%);
+    color: white !important;
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: center;
+}
+
+footer p {
+    color: white !important;
+    margin-bottom: 5px;
+}
+
+footer a {
+    color: white !important;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+footer i {
+    color: white !important;
+}
+
+footer .fas, footer .far {
+    color: white !important;
+}
+
+footer .fa-heart {
+    color: #ff99cc !important;
+    animation: heartbeat 1.5s ease infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Для тёмного фона футера */
+footer .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Если у вас есть ссылки в футере */
+footer .footer-link {
+    color: white !important;
+    opacity: 0.9;
+}
+
+footer .footer-link:hover {
+    opacity: 1;
+    color: white !important;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    footer {
+        padding: 15px 0;
+        font-size: 0.85rem;
+    }
+    
+    footer p {
+        margin-bottom: 3px;
+    }
+}
+
+/* ========== УЛУЧШЕНИЕ МАСШТАБИРОВАНИЯ ========== */
+
+/* Плавное масштабирование всех элементов */
+* {
+    transition: transform 0.1s ease;
+}
+
+/* Карточки котиков - увеличиваются при наведении */
+.cat-card, .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cat-card:hover, .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(255, 105, 180, 0.2);
+}
+
+/* Кнопки - увеличиваются при наведении */
+.btn {
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+/* Изображения - увеличиваются при наведении */
+img {
+    transition: transform 0.3s ease;
+}
+
+img:hover {
+    transform: scale(1.02);
+}
+
+/* Ссылки в навигации - подсветка */
+.nav-link {
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Статистические карточки */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.03);
+}
+
+/* Формы - подсветка при фокусе */
+.form-control:focus, .form-select:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+/* Блоки с информацией о котике */
+.cat-details span {
+    transition: all 0.2s ease;
+}
+
+.cat-details span:hover {
+    transform: scale(1.05);
+    background: #ffe4ec;
+}
+
+/* Для мобильных устройств - убираем увеличение при наведении */
+@media (max-width: 768px) {
+    .cat-card:hover, .card:hover, .stat-card:hover, .btn:hover {
+        transform: none;
+    }
+    
+    img:hover {
+        transform: none;
+    }
+}
+
+.stat-card.vaccinated {
+    border-bottom: 4px solid #28a745;
+}
+
+.stat-card.vaccinated .stat-icon {
+    color: #28a745;
+}
+
+.stat-card.sterilized {
+    border-bottom: 4px solid #17a2b8;
+}
+
+.stat-card.sterilized .stat-icon {
+    color: #17a2b8;
+}
+
+/* Стили для readonly полей */
+input[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    border-color: #ffb6c1;
+}

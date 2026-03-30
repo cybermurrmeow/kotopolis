@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Настройка контрольного вопроса</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.security_question.label(class="form-label") }}
+                            {{ form.security_question(class="form-select") }}
+                            {% if form.security_question.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.security_question.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.security_answer.label(class="form-label") }}
+                            {{ form.security_answer(class="form-control") }}
+                            <small class="text-muted">Запомните этот ответ! Он понадобится для восстановления пароля.</small>
+                            {% if form.security_answer.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.security_answer.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Отмена</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

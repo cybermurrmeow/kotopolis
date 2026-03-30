@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="welcome-page">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-pink text-white py-4">
+                        <i class="fas fa-cat fa-4x mb-2"></i>
+                        <h1 class="mb-0">Добро пожаловать, {{ current_user.username }}! 🐱</h1>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="welcome-text mb-4">
+                            <p class="lead fs-4">
+                                🌸 <strong>Сердечно приветствуем вас в Котополисе!</strong> 🌸
+                            </p>
+                            <p class="mt-3">
+                                Здесь живут самые прекрасные котики, которые ждут вашей любви и заботы. 
+                                Каждый день мы работаем, чтобы наши пушистые друзья нашли свой уютный дом.
+                            </p>
+                            <p class="mt-3">
+                                💖 Спасибо, что вы с нами! Вместе мы делаем мир добрее. 💖
+                            </p>
+                        </div>
+
+                        <div class="creator-section mt-5">
+                            <div class="row justify-content-center">
+                                <div class="col-md-8">
+                                    <div class="creator-card p-4 bg-light rounded-4 shadow-sm">
+                                        <div class="text-center">
+                                            <div class="creator-photo mb-3 text-center">
+                                                <img src="{{ url_for('static', filename='images/creator.jpg') }}" 
+                                                     alt="Создатель Котополиса"
+                                                     class="rounded-circle shadow-lg"
+                                                     style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #ff69b4;">
+                                                <div class="mt-2">
+                                                    <i class="fas fa-star" style="color: gold; font-size: 14px;"></i>
+                                                    <i class="fas fa-heart" style="color: #ff69b4; font-size: 26px; margin: 0 8px;"></i>
+                                                    <i class="fas fa-star" style="color: gold; font-size: 14px;"></i>
+                                                </div>
+                                            </div>
+                                            <h3 class="text-pink mb-2">Алиночка</h3>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-code"></i> Создатель проекта «Котополис»
+                                            </p>
+                                            <p class="small text-muted mb-3">
+                                                🐱 Разработано с любовью к котикам 🐱
+                                            </p>
+                                            
+                                            <div class="contact-info mt-4">
+                                                <div class="contact-item mb-3">
+                                                    <i class="fas fa-envelope fa-lg" style="color: #ff69b4; width: 35px;"></i>
+                                                    <a href="mailto:myxexexe@bk.ru" class="text-decoration-none ms-2">
+                                                        myxexexe@bk.ru
+                                                    </a>
+                                                </div>
+                                                <div class="contact-item">
+                                                    <i class="fas fa-phone fa-lg" style="color: #4caf50; width: 35px;"></i>
+                                                    <a href="tel:+79779563929" class="text-decoration-none ms-2">
+                                                        +7 (977) 956-39-29
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-4">
+                                                <p class="text-muted small">
+                                                    <i class="fas fa-shield-alt"></i> Ваши данные защищены
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons mt-5">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-pink w-100 py-3">
+                                        <i class="fas fa-chart-line"></i> Перейти к дашборду
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('cats') }}" class="btn btn-outline-pink w-100 py-3">
+                                        <i class="fas fa-paw"></i> Посмотреть котиков
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+.creator-card {
+    transition: transform 0.3s ease;
+}
+.creator-card:hover {
+    transform: translateY(-5px);
+}
+.contact-info {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+.contact-item:hover {
+    background: #fff0f5;
+    transform: translateX(5px);
+}
+.contact-item a {
+    color: #555;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.contact-item a:hover {
+    color: #ff69b4;
+    text-decoration: underline;
+}
+.btn-pink {
+    background: linear-gradient(135deg, #ff69b4 0%, #ffb6c1 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+.btn-pink:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+    color: white;
+}
+.btn-outline-pink {
+    border: 2px solid #ff69b4;
+    color: #ff69b4;
+    background: transparent;
+}
+.btn-outline-pink:hover {
+    background: #ff69b4;
+    color: white;
+}
+.text-pink {
+    color: #ff69b4;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="adoption-requests-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="fas fa-file-alt"></i> Заявки на усыновление
+        </h1>
+        <div>
+            <span class="badge bg-pink p-2">
+                <i class="fas fa-heart"></i> Всего: {{ requests|length }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Список заявок -->
+    {% if requests %}
+        <div class="row">
+            {% for request in requests %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header {% if request.status == 'Одобрена' %}bg-success{% elif request.status == 'Отклонена' %}bg-danger{% elif request.status == 'Завершена' %}bg-secondary{% else %}bg-pink{% endif %} text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-paw"></i> {{ request.cat.name if request.cat else 'Котик удалён' }}
+                            </h5>
+                            <span class="badge bg-light text-dark">
+                                {{ request.status }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                {% if request.cat and request.cat.photo_path %}
+                                    <img src="{{ url_for('static', filename=request.cat.photo_path) }}" class="img-fluid rounded" style="max-height: 120px; width: 100%; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-pink rounded d-flex align-items-center justify-content-center" style="height: 120px;">
+                                        <i class="fas fa-cat fa-3x text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-user"></i> Заявитель:</strong>
+                                    <p class="mb-0">{{ request.adopter_name }}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-phone"></i> Телефон:</strong>
+                                    <p class="mb-0">{{ request.phone or 'Не указан' }}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-envelope"></i> Email:</strong>
+                                    <p class="mb-0">{{ request.email }}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-calendar"></i> Дата заявки:</strong>
+                                    <p class="mb-0">{{ request.request_date.strftime('%d.%m.%Y') }}</p>
+                                </div>
+                                {% if request.comment %}
+                                <div class="mb-2">
+                                    <strong><i class="fas fa-comment"></i> Комментарий:</strong>
+                                    <p class="mb-0 small text-muted">{{ request.comment }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group" role="group">
+                                {% if request.status == 'На рассмотрении' %}
+                                <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}" style="display: inline;">
+                                    <input type="hidden" name="status" value="Одобрена">
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Одобрить заявку? Котик будет отмечен как усыновлённый!')">
+                                        <i class="fas fa-check"></i> Одобрить
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}" style="display: inline;">
+                                    <input type="hidden" name="status" value="Отклонена">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Отклонить заявку?')">
+                                        <i class="fas fa-times"></i> Отклонить
+                                    </button>
+                                </form>
+                                {% elif request.status == 'Одобрена' %}
+                                <span class="badge bg-success">✅ Одобрена (кот усыновлён)</span>
+                                <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}" style="display: inline;">
+                                    <input type="hidden" name="status" value="Отклонена">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Отменить усыновление? Кот вернётся в приют!')">
+                                        <i class="fas fa-undo"></i> Отменить
+                                    </button>
+                                </form>
+                                {% elif request.status == 'Отклонена' %}
+                                <span class="badge bg-danger">❌ Отклонена</span>
+                                <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}" style="display: inline;">
+                                    <input type="hidden" name="status" value="На рассмотрении">
+                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Вернуть заявку на рассмотрение?')">
+                                        <i class="fas fa-undo"></i> Вернуть
+                                    </button>
+                                </form>
+                                {% elif request.status == 'Завершена' %}
+                                <span class="badge bg-secondary">🏠 Завершена</span>
+                                {% endif %}
+                                <a href="{{ url_for('delete_request', request_id=request.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить заявку?')">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </a>
+                            </div>
+                            {% if request.cat %}
+                            <a href="{{ url_for('cat_details', cat_id=request.cat.id) }}" class="btn btn-sm btn-outline-pink">
+                                <i class="fas fa-cat"></i> Котик
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">Нет заявок на усыновление</h3>
+            <p class="text-muted">Когда появятся заявки, они будут отображаться здесь</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.adoption-requests-page .card {
+    transition: transform 0.2s ease;
+}
+.adoption-requests-page .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.btn-group .btn {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}

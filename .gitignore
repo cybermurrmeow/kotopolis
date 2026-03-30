@@ -1,0 +1,40 @@
+# Создаем файл .gitignore
+@"
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Flask
+instance/
+.webassets-cache
+
+# База данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Загруженные файлы
+static/uploads/*.gif
+static/uploads/*.jpg
+static/uploads/*.png
+!static/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+
+# Конфиденциальное
+.env
+"@ | Out-File -FilePath .gitignore -Encoding UTF8

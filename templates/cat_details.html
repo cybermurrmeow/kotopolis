@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if cat.photo_path %}
+                    <img src="{{ url_for('static', filename=cat.photo_path) }}" 
+                         class="img-fluid rounded mb-3 cat-gif" 
+                         style="max-height: 250px; width: 100%; object-fit: cover; cursor: pointer;"
+                         data-bs-toggle="modal" 
+                         data-bs-target="#gifModal"
+                         alt="{{ cat.name }}">
+                {% else %}
+                    <div class="bg-pink rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-cat fa-4x text-white"></i>
+                    </div>
+                {% endif %}
+                
+                <h2>{{ cat.name }}</h2>
+                {% if cat.nickname %}
+                    <p class="text-muted">{{ cat.nickname }}</p>
+                {% endif %}
+                
+                <div class="mt-2">
+                    <span class="badge bg-{% if cat.status == 'В приюте' %}secondary{% elif cat.status == 'Усыновлён' %}success{% elif cat.status == 'На лечении' %}warning{% else %}info{% endif %}">
+                        {{ cat.status }}
+                    </span>
+                    <span class="badge vacc-{{ cat.vacc_status().class }}">
+                        {{ cat.vacc_status().text }}
+                    </span>
+                </div>
+                
+                <hr>
+                
+                <div class="text-start">
+                    <p><strong>🎂 Возраст:</strong> {{ cat.age or '?' }} лет</p>
+                    <p><strong>⚥ Пол:</strong> {{ cat.gender or 'Не указан' }}</p>
+                    <p><strong>🐕 Порода:</strong> {{ cat.breed or 'Дворняжка' }}</p>
+                    <p><strong>🎨 Окрас:</strong> {{ cat.color or 'Не указан' }}</p>
+                    <p><strong>⚖️ Вес:</strong> {{ cat.weight or '?' }} кг</p>
+                    <p><strong>😊 Настроение:</strong> {{ cat.mood or 'Неизвестно' }}</p>
+                    <p><strong>🧸 Любимая игрушка:</strong> {{ cat.favorite_toy or 'Не указана' }}</p>
+                    
+                    {% if cat.status == 'Усыновлён' %}
+                        <p><strong>📆 Был в приюте:</strong> {{ cat.days_in_shelter }} дней</p>
+                        {% if cat.adoption_date %}
+                            <p><strong>🏠 Дата усыновления:</strong> {{ cat.adoption_date.strftime('%d.%m.%Y') }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p><strong>📆 В приюте:</strong> {{ cat.days_in_shelter }} дней</p>
+                    {% endif %}
+                    
+                    <p><strong>💉 Вакцинация:</strong> 
+                        {% if cat.is_vaccinated %}
+                            <span class="text-success">✅ Вакцинирован(а)</span>
+                            {% if cat.last_vacc_date %}
+                                <br><small class="text-muted">Последняя: {{ cat.last_vacc_date.strftime('%d.%m.%Y') }}</small>
+                            {% endif %}
+                            {% if cat.next_vacc_date %}
+                                <br><small class="text-muted">Следующая: {{ cat.next_vacc_date.strftime('%d.%m.%Y') }}</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-warning">⚠️ Не вакцинирован(а)</span>
+                        {% endif %}
+                    </p>
+                    
+                    <p><strong>✂️ Стерилизация:</strong> 
+                        {% if cat.is_sterilized %}
+                            <span class="text-success">✅ Стерилизован(а)</span>
+                        {% else %}
+                            <span class="text-warning">⚠️ Не стерилизован(а)</span>
+                            <br><small class="text-muted">Рекомендуется стерилизация в возрасте 6-8 месяцев</small>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="d-grid gap-2 mt-3">
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('edit_cat', cat_id=cat.id) }}" class="btn btn-pink">Редактировать</a>
+                    {% endif %}
+                    {% if cat.status != 'Усыновлён' %}
+                        <button type="button" class="btn btn-outline-pink" data-bs-toggle="modal" data-bs-target="#adoptModal">
+                            Хочу усыновить!
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <!-- ХАРАКТЕР И ОСОБЕННОСТИ -->
+        <div class="card mb-4">
+            <div class="card-header bg-pink text-white">
+                <h5>🐱 Характер и особенности</h5>
+            </div>
+            <div class="card-body">
+                {% if cat.personality %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-heart text-pink"></i> Характер:</h6>
+                    <p>{{ cat.personality }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cat.activity_level %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-bolt text-pink"></i> Уровень активности:</h6>
+                    <p>{{ cat.activity_level }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cat.favorite_place %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-home text-pink"></i> Любимое место:</h6>
+                    <p>{{ cat.favorite_place }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cat.vocal %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-music text-pink"></i> Голос:</h6>
+                    <p>{{ cat.vocal }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cat.food_preferences %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-utensils text-pink"></i> Предпочтения в еде:</h6>
+                    <p>{{ cat.food_preferences }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- СОЦИАЛИЗАЦИЯ -->
+        <div class="card mb-4">
+            <div class="card-header bg-pink text-white">
+                <h5>🤝 Социализация</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <i class="fas fa-child fa-2x {% if cat.kids_friendly %}text-success{% else %}text-danger{% endif %}"></i>
+                        <p class="mb-0 mt-2">
+                            {% if cat.kids_friendly %}
+                            <span class="text-success">✅ Ладит с детьми</span>
+                            {% else %}
+                            <span class="text-danger">❌ Не рекомендуется с детьми</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-cat fa-2x {% if cat.cats_friendly %}text-success{% else %}text-danger{% endif %}"></i>
+                        <p class="mb-0 mt-2">
+                            {% if cat.cats_friendly %}
+                            <span class="text-success">✅ Ладит с кошками</span>
+                            {% else %}
+                            <span class="text-danger">❌ Не ладит с кошками</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-dog fa-2x {% if cat.dogs_friendly %}text-success{% else %}text-danger{% endif %}"></i>
+                        <p class="mb-0 mt-2">
+                            {% if cat.dogs_friendly %}
+                            <span class="text-success">✅ Ладит с собаками</span>
+                            {% else %}
+                            <span class="text-danger">❌ Не ладит с собаками</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ОПИСАНИЕ И ЗДОРОВЬЕ -->
+        <div class="card mb-4">
+            <div class="card-header bg-pink text-white">
+                <h5>📝 О котике</h5>
+            </div>
+            <div class="card-body">
+                {% if cat.description %}
+                    <p><strong>📋 Общее описание:</strong> {{ cat.description }}</p>
+                {% endif %}
+                {% if cat.health %}
+                    <hr>
+                    <p><strong>💊 Состояние здоровья:</strong> {{ cat.health }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- ИСТОРИЯ КОТИКА -->
+        {% if cat.story %}
+        <div class="card mb-4">
+            <div class="card-header bg-pink text-white">
+                <h5>📖 История {{ cat.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ cat.story }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- РЕКОМЕНДАЦИИ ДЛЯ УСЫНОВИТЕЛЯ -->
+        {% if cat.adoption_recommendation %}
+        <div class="card mb-4">
+            <div class="card-header bg-pink text-white">
+                <h5>💡 Рекомендации для усыновителя</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ cat.adoption_recommendation }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- КОММЕНТАРИИ -->
+        <div class="card">
+            <div class="card-header bg-pink text-white">
+                <h5>💬 Комментарии ({{ comments|length }})</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_comment', cat_id=cat.id) }}" class="mb-4">
+                    {{ form.csrf_token }}
+                    {{ form.comment(class="form-control", rows="3", placeholder="Напишите комментарий...") }}
+                    <button type="submit" class="btn btn-pink mt-2">Добавить комментарий</button>
+                </form>
+                
+                {% for comment in comments %}
+                    <div class="border-bottom mb-2 pb-2">
+                        <strong>{{ comment.user.username if comment.user else 'Аноним' }}</strong>
+                        <small class="text-muted float-end">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                        <p class="mb-0">{{ comment.comment }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для увеличенного GIF -->
+<div class="modal fade" id="gifModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                {% if cat.photo_path %}
+                    <img src="{{ url_for('static', filename=cat.photo_path) }}" 
+                         class="img-fluid rounded" 
+                         style="max-height: 80vh; max-width: 100%; object-fit: contain;"
+                         alt="{{ cat.name }}">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для усыновления -->
+<div class="modal fade" id="adoptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-pink text-white">
+                <h5>Заявка на усыновление {{ cat.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            {% if cat.status == 'Усыновлён' %}
+                <div class="modal-body">
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-heart-broken fa-2x mb-2"></i>
+                        <h5>😔 К сожалению, этот котик уже усыновлён!</h5>
+                        <p>Посмотрите других котиков в нашем приюте.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            {% else %}
+                <form method="POST" action="{{ url_for('adopt', cat_id=cat.id) }}">
+                    <div class="modal-body">
+                        {{ adoption_form.csrf_token }}
+                        <div class="mb-3">
+                            <label class="form-label">👤 {{ adoption_form.adopter_name.label.text }}</label>
+                            {{ adoption_form.adopter_name(class="form-control", placeholder="Введите ваше полное имя") }}
+                            <small class="text-muted">⚠️ Укажите ваше реальное имя для связи</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📞 {{ adoption_form.phone.label.text }}</label>
+                            {{ adoption_form.phone(class="form-control", placeholder="+7 (XXX) XXX-XX-XX") }}
+                            <small class="text-muted">Для связи с вами</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📧 {{ adoption_form.email.label.text }}</label>
+                            {{ adoption_form.email(class="form-control", value=current_user.email, readonly=true) }}
+                            <small class="text-muted text-success">✅ Ваш email из профиля (изменить нельзя)</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">💬 {{ adoption_form.comment.label.text }}</label>
+                            {{ adoption_form.comment(class="form-control", rows="3", placeholder="Расскажите, почему вы хотите усыновить этого котика...") }}
+                            <small class="text-muted">Расскажите о себе и условиях содержания котика</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-pink">Отправить заявку</button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .cat-gif {
+        transition: transform 0.2s ease;
+        cursor: pointer;
+    }
+    .cat-gif:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .modal-content.bg-transparent {
+        background: transparent !important;
+    }
+    .btn-close-white {
+        filter: brightness(0) invert(1);
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        padding: 8px;
+        z-index: 1050;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('gifModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    var bsModal = bootstrap.Modal.getInstance(modal);
+                    bsModal.hide();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-pink text-white text-center">
+                <h3>Повторная отправка письма</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required placeholder="your@email.com">
+                    </div>
+                    <button type="submit" class="btn btn-pink w-100">Отправить повторно</button>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <a href="{{ url_for('login') }}">Вернуться ко входу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
