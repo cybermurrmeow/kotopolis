@@ -286,7 +286,7 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3">
                             {% if cat.photo_path %}
-                                <img src="{{ url_for('static', filename=cat.photo_path) }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                <img src="{{ cat.photo_path }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
                             {% else %}
                                 <div class="bg-pink rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                     <i class="fas fa-cat text-white"></i>
@@ -362,12 +362,10 @@
                     {% if cat.photo_path %}
                         {% if cat.photo_path.startswith('http') %}
                             <img src="{{ cat.photo_path }}" 
-                                 loading="lazy"
                                  class="rounded-circle" 
                                  style="width: 80px; height: 80px; object-fit: cover;">
                         {% else %}
                             <img src="{{ url_for('static', filename=cat.photo_path) }}" 
-                                 loading="lazy"
                                  class="rounded-circle" 
                                  style="width: 80px; height: 80px; object-fit: cover;">
                         {% endif %}
