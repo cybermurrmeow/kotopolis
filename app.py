@@ -898,13 +898,7 @@ def edit_profile():
         bio = request.form.get('bio', '')
         current_user.bio = bio
         
-        if 'avatar' in request.files:
-            file = request.files['avatar']
-            if file and file.filename:
-                filename = secure_filename(f"avatar_{current_user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                current_user.avatar = f'uploads/{filename}'
+        # Удален блок загрузки аватара
         
         db.session.commit()
         flash('✅ Профиль успешно обновлён!', 'success')

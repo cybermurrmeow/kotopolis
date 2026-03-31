@@ -21,7 +21,6 @@ class User(UserMixin, db.Model):
     security_answer = db.Column(db.String(200))
     
     # НОВЫЕ ПОЛЯ ДЛЯ ПРОФИЛЯ
-    avatar_emoji = db.Column(db.String(10), default='🐱')
     bio = db.Column(db.Text)  # описание о себе
     
     def check_answer(self, answer):
