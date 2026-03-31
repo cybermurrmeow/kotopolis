@@ -33,11 +33,17 @@ def admin_required(f):
 # ====================== СОЗДАНИЕ ПРИЛОЖЕНИЯ ======================
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kotopolis_pink_secret_key_2026_updated'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kotopolis.db'
+
+# ========== НАСТРОЙКА БАЗЫ ДАННЫХ (для разных платформ) ==========
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///kotopolis.db')
+if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['TEMPLATES_AUTO_RELOAD'] = True  # Автоматическая перезагрузка шаблонов
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # ========== НАСТРОЙКИ EMAIL ==========
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -995,29 +1001,8 @@ def utility_processor():
         'now': datetime.now()
     }
 
-# ====================== КОНТЕКСТНЫЙ ПРОЦЕССОР ======================
-@app.context_processor
-def utility_processor():
-    """Добавляет глобальные переменные во все шаблоны"""
-    def get_current_year():
-        return datetime.now().year
-    
-    def get_total_cats():
-        return Cat.query.count()
-    
-    def get_available_cats():
-        return Cat.query.filter_by(status='В приюте').count()
-    
-    return {
-        'current_year': get_current_year(),
-        'total_cats': get_total_cats(),
-        'available_cats': get_available_cats(),
-        'now': datetime.now()
-    }
-
 
 # ====================== СОЗДАНИЕ БАЗЫ ДАННЫХ ======================
-# ЭТОТ КОД ВЫПОЛНЯЕТСЯ ПРИ ЗАПУСКЕ (И gunicorn, И python)
 with app.app_context():
     db.create_all()
     print("✅ Таблицы базы данных созданы")
@@ -1038,7 +1023,8 @@ with app.app_context():
     
     print("🐱 Котополис запущен!")
 
+# Для Koyeb и других хостингов
+application = app
 
-# ====================== ЗАПУСК ПРИЛОЖЕНИЯ ======================
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
