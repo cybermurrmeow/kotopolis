@@ -30,9 +30,14 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            <!-- ФОТО КОТИКА - ИСПРАВЛЕННЫЙ БЛОК -->
                             <div class="col-md-4 text-center">
                                 {% if request.cat and request.cat.photo_path %}
-                                    <img src="{{ url_for('static', filename=request.cat.photo_path) }}" class="img-fluid rounded" style="max-height: 120px; width: 100%; object-fit: cover;">
+                                    {% if request.cat.photo_path.startswith('http') %}
+                                        <img src="{{ request.cat.photo_path }}" class="img-fluid rounded" style="max-height: 120px; width: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename=request.cat.photo_path) }}" class="img-fluid rounded" style="max-height: 120px; width: 100%; object-fit: cover;">
+                                    {% endif %}
                                 {% else %}
                                     <div class="bg-pink rounded d-flex align-items-center justify-content-center" style="height: 120px;">
                                         <i class="fas fa-cat fa-3x text-white"></i>
