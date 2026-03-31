@@ -349,32 +349,42 @@
 {% endif %}
 
     <!-- ========== ПОСЛЕДНИЕ ДОБАВЛЕННЫЕ КОТИКИ ========== -->
-    {% if recent_cats %}
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-clock"></i> Последние добавленные котики</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                {% for cat in recent_cats %}
-                <div class="col-md-3 mb-3">
-                    <div class="text-center">
-                        {% if cat.photo_path %}
-                            <img src="{{ url_for('static', filename=cat.photo_path) }}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+{% if recent_cats %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-clock"></i> Последние добавленные котики</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for cat in recent_cats %}
+            <div class="col-md-3 mb-3">
+                <div class="text-center">
+                    {% if cat.photo_path %}
+                        {% if cat.photo_path.startswith('http') %}
+                            <img src="{{ cat.photo_path }}" 
+                                 loading="lazy"
+                                 class="rounded-circle" 
+                                 style="width: 80px; height: 80px; object-fit: cover;">
                         {% else %}
-                            <div class="rounded-circle bg-pink d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; margin: 0 auto;">
-                                <i class="fas fa-cat fa-3x text-white"></i>
-                            </div>
+                            <img src="{{ url_for('static', filename=cat.photo_path) }}" 
+                                 loading="lazy"
+                                 class="rounded-circle" 
+                                 style="width: 80px; height: 80px; object-fit: cover;">
                         {% endif %}
-                        <h6 class="mt-2 mb-0">{{ cat.name }}</h6>
-                        <small class="text-muted">{{ cat.arrival_date.strftime('%d.%m.%Y') if cat.arrival_date else 'Дата неизвестна' }}</small>
-                    </div>
+                    {% else %}
+                        <div class="rounded-circle bg-pink d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; margin: 0 auto;">
+                            <i class="fas fa-cat fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h6 class="mt-2 mb-0">{{ cat.name }}</h6>
+                    <small class="text-muted">{{ cat.arrival_date.strftime('%d.%m.%Y') if cat.arrival_date else 'Дата неизвестна' }}</small>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
+</div>
+{% endif %}
 </div>
 
 <style>

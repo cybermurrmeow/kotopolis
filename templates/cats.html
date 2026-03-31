@@ -88,7 +88,7 @@
 {% if cat.photo_path %}
     {% if cat.photo_path.startswith('http') %}
         <!-- Внешняя ссылка (Tenor, GIPHY, Imgur) -->
-        <img src="{{ cat.photo_path }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
+        <img src="{{ cat.photo_path }}" loading="lazy" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
     {% else %}
         <!-- Локальный файл -->
         <img src="{{ url_for('static', filename=cat.photo_path) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
