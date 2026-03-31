@@ -85,13 +85,19 @@
     <div class="col-md-4 mb-4">
         <div class="card h-100 shadow-sm">
             <!-- 📸 Фото -->
-            {% if cat.photo_path %}
-                <img src="{{ url_for('static', filename=cat.photo_path) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
-            {% else %}
-                <div class="card-img-top bg-pink d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="fas fa-cat fa-4x text-white"></i>
-                </div>
-            {% endif %}
+{% if cat.photo_path %}
+    {% if cat.photo_path.startswith('http') %}
+        <!-- Внешняя ссылка (Tenor, GIPHY, Imgur) -->
+        <img src="{{ cat.photo_path }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
+    {% else %}
+        <!-- Локальный файл -->
+        <img src="{{ url_for('static', filename=cat.photo_path) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ cat.name }}">
+    {% endif %}
+{% else %}
+    <div class="card-img-top bg-pink d-flex align-items-center justify-content-center" style="height: 200px;">
+        <i class="fas fa-cat fa-4x text-white"></i>
+    </div>
+{% endif %}
             
             <div class="card-body">
                 <!-- 🐱 Имя + 🏷️ Кличка -->
