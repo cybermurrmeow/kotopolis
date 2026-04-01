@@ -283,9 +283,6 @@
         Нет данных
     {% endif %}
     </small>
-    {% if current_user.role == 'admin' %}
-        <a href="{{ url_for('edit_cat', cat_id=cat.id) }}" class="btn btn-sm btn-warning float-end">Обновить</a>
-    {% endif %}
 </div>
             </div>
             {% endfor %}
