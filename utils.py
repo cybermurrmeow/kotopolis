@@ -97,6 +97,10 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     
     styles = getSampleStyleSheet()
     
+    # Используем стандартный шрифт Helvetica (есть на Render)
+    FONT_NAME = 'Helvetica'
+    
+    # Создаем стили с правильным шрифтом
     title_style = ParagraphStyle(
         'CustomTitle', parent=styles['Normal'], fontSize=20,
         textColor=colors.HexColor('#FF69B4'), spaceAfter=20, alignment=1, fontName=FONT_NAME
@@ -113,10 +117,15 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
         fontName=FONT_NAME, alignment=0
     )
     
+    # Стиль для обычного текста
+    normal_style = ParagraphStyle(
+        'Normal', parent=styles['Normal'], fontName=FONT_NAME, fontSize=10
+    )
+    
     elements = []
     
-    elements.append(Paragraph("КОТОПОЛИС", title_style))
-    elements.append(Paragraph(f"Отчёт сгенерирован: {date.today().strftime('%d.%m.%Y')}", subtitle_style))
+    elements.append(Paragraph("KOTOPOLIS", title_style))  # Латинскими буквами
+    elements.append(Paragraph(f"Report generated: {date.today().strftime('%d.%m.%Y')}", subtitle_style))
     elements.append(Spacer(1, 0.5*cm))
     
     total = len(cats)
@@ -126,12 +135,12 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     quarantine = sum(1 for c in cats if c.status == 'В карантине')
     
     stats_data = [
-        ['Показатель', 'Количество'],
-        ['Всего котиков', str(total)],
-        ['В приюте', str(in_shelter)],
-        ['Усыновлены', str(adopted)],
-        ['На лечении', str(treatment)],
-        ['В карантине', str(quarantine)]
+        ['Statistics', 'Count'],
+        ['Total cats', str(total)],
+        ['In shelter', str(in_shelter)],
+        ['Adopted', str(adopted)],
+        ['Treatment', str(treatment)],
+        ['Quarantine', str(quarantine)]
     ]
     
     stats_table = Table(stats_data, colWidths=[8*cm, 4*cm])
@@ -151,17 +160,17 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     elements.append(Spacer(1, 0.5*cm))
     
     # Медицинская статистика
-    elements.append(Paragraph("Медицинская статистика", section_style))
+    elements.append(Paragraph("Medical Statistics", section_style))
     
     vaccinated = sum(1 for c in cats if c.is_vaccinated)
     sterilized = sum(1 for c in cats if c.is_sterilized)
     need_vacc_count = sum(1 for c in cats if not c.is_vaccinated or (c.last_vacc_date and (date.today() - c.last_vacc_date).days > 365))
     
     medical_data = [
-        ['Показатель', 'Количество', 'Процент'],
-        ['Вакцинированы', str(vaccinated), f"{vaccinated/total*100:.1f}%" if total > 0 else '0%'],
-        ['Стерилизованы', str(sterilized), f"{sterilized/total*100:.1f}%" if total > 0 else '0%'],
-        ['Требуют прививки', str(need_vacc_count), f"{need_vacc_count/total*100:.1f}%" if total > 0 else '0%']
+        ['Indicator', 'Count', 'Percentage'],
+        ['Vaccinated', str(vaccinated), f"{vaccinated/total*100:.1f}%" if total > 0 else '0%'],
+        ['Sterilized', str(sterilized), f"{sterilized/total*100:.1f}%" if total > 0 else '0%'],
+        ['Need vaccination', str(need_vacc_count), f"{need_vacc_count/total*100:.1f}%" if total > 0 else '0%']
     ]
     
     medical_table = Table(medical_data, colWidths=[6*cm, 3*cm, 3*cm])
@@ -179,13 +188,13 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     elements.append(Spacer(1, 0.5*cm))
     
     # Список котов
-    elements.append(Paragraph("Список всех котиков", section_style))
+    elements.append(Paragraph("Cats List", section_style))
     
-    cats_data = [['Имя', 'Возраст', 'Порода', 'Статус', 'Дней в приюте']]
+    cats_data = [['Name', 'Age', 'Breed', 'Status', 'Days']]
     for cat in cats[:20]:
-        age_str = f"{cat.age} мес." if cat.age else '-'
+        age_str = f"{cat.age} months" if cat.age else '-'
         if cat.age and cat.age >= 12:
-            age_str = f"{cat.age/12:.1f} лет"
+            age_str = f"{cat.age/12:.1f} years"
         cats_data.append([
             cat.name,
             age_str,
