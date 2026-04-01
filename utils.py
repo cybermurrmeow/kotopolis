@@ -150,37 +150,6 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     elements.append(stats_table)
     elements.append(Spacer(1, 0.5*cm))
     
-    # Возрастные группы (возраст в годах)
-    elements.append(Paragraph("Возрастные группы", section_style))
-    
-    kittens = sum(1 for c in cats if c.age is not None and c.age < 12)  # <1 года = <12 месяцев
-    young = sum(1 for c in cats if c.age is not None and 12 <= c.age <= 36)  # 1-3 года
-    adult = sum(1 for c in cats if c.age is not None and 36 < c.age <= 84)  # 4-7 лет
-    senior = sum(1 for c in cats if c.age is not None and c.age > 84)  # 8+ лет
-    
-    age_data = [
-        ['Категория', 'Количество', 'Процент'],
-        ['Котята (до 1 года)', str(kittens), f"{kittens/total*100:.1f}%" if total > 0 else '0%'],
-        ['Молодые (1-3 года)', str(young), f"{young/total*100:.1f}%" if total > 0 else '0%'],
-        ['Взрослые (4-7 лет)', str(adult), f"{adult/total*100:.1f}%" if total > 0 else '0%'],
-        ['Пожилые (8+ лет)', str(senior), f"{senior/total*100:.1f}%" if total > 0 else '0%']
-    ]
-    
-    age_table = Table(age_data, colWidths=[6*cm, 3*cm, 3*cm])
-    age_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#FF69B4')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), FONT_NAME),
-        ('FONTSIZE', (0, 0), (-1, 0), 11),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#FFB6C1')),
-        ('FONTNAME', (0, 1), (-1, -1), FONT_NAME),
-    ]))
-    
-    elements.append(age_table)
-    elements.append(Spacer(1, 0.5*cm))
-    
     # Медицинская статистика
     elements.append(Paragraph("Медицинская статистика", section_style))
     
