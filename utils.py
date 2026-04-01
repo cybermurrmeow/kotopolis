@@ -97,10 +97,11 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     
     styles = getSampleStyleSheet()
     
-    # Используем стандартный шрифт Helvetica (есть на Render)
+    # Пытаемся использовать шрифт с поддержкой кириллицы
+    # На Render используем стандартные шрифты, которые поддерживают кириллицу
     FONT_NAME = 'Helvetica'
     
-    # Создаем стили с правильным шрифтом
+    # Создаем стили
     title_style = ParagraphStyle(
         'CustomTitle', parent=styles['Normal'], fontSize=20,
         textColor=colors.HexColor('#FF69B4'), spaceAfter=20, alignment=1, fontName=FONT_NAME
@@ -117,14 +118,15 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
         fontName=FONT_NAME, alignment=0
     )
     
-    # Стиль для обычного текста
+    # Обычный стиль
     normal_style = ParagraphStyle(
-        'Normal', parent=styles['Normal'], fontName=FONT_NAME, fontSize=10
+        'Normal', parent=styles['Normal'], fontName=FONT_NAME, fontSize=9
     )
     
     elements = []
     
-    elements.append(Paragraph("KOTOPOLIS", title_style))  # Латинскими буквами
+    # Используем латиницу для заголовков (чтобы не было квадратов)
+    elements.append(Paragraph("KOTOPOLIS", title_style))
     elements.append(Paragraph(f"Report generated: {date.today().strftime('%d.%m.%Y')}", subtitle_style))
     elements.append(Spacer(1, 0.5*cm))
     
@@ -192,9 +194,20 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
     
     cats_data = [['Name', 'Age', 'Breed', 'Status', 'Days']]
     for cat in cats[:20]:
-        age_str = f"{cat.age} months" if cat.age else '-'
-        if cat.age and cat.age >= 12:
-            age_str = f"{cat.age/12:.1f} years"
+        # Конвертируем возраст в читаемый формат
+        if cat.age:
+            if cat.age < 12:
+                age_str = f"{cat.age} months"
+            else:
+                years = cat.age // 12
+                months = cat.age % 12
+                if months == 0:
+                    age_str = f"{years} years"
+                else:
+                    age_str = f"{years} years {months} months"
+        else:
+            age_str = '-'
+        
         cats_data.append([
             cat.name,
             age_str,
@@ -203,15 +216,17 @@ def generate_pdf_report(cats, title="Отчёт Котополис"):
             str(get_days_in_shelter(cat))
         ])
     
-    cats_table = Table(cats_data, colWidths=[4*cm, 2.5*cm, 4*cm, 3.5*cm, 2.5*cm])
+    cats_table = Table(cats_data, colWidths=[4*cm, 3*cm, 3.5*cm, 3*cm, 2.5*cm])
     cats_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#FF69B4')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), FONT_NAME),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
         ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
         ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#FFB6C1')),
         ('FONTNAME', (0, 1), (-1, -1), FONT_NAME),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
     ]))
     
     elements.append(cats_table)
