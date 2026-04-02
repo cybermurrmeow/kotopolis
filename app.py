@@ -46,12 +46,12 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # ========== НАСТРОЙКИ EMAIL ==========
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.unisender.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'alinakuznecova63802@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ojfzyahmgprnfwwl'
-app.config['MAIL_DEFAULT_SENDER'] = 'alinakuznecova63802@gmail.com'
+app.config['MAIL_USERNAME'] = 'kotopolis.help@mail.ru'
+app.config['MAIL_PASSWORD'] = '6ccd1retmss1eakwcuj5pn6fgfz681orshxmubuo'
+app.config['MAIL_DEFAULT_SENDER'] = 'kotopolis.help@mail.ru'
 app.config['MAIL_SUPPRESS_SEND'] = False
 app.config['TESTING'] = False
 
@@ -1175,4 +1175,5 @@ with app.app_context():
 application = app
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
