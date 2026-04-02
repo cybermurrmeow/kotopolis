@@ -923,48 +923,6 @@ def migrate_cats():
     db.session.commit()
     sqlite_conn.close()
     return f"✅ Перенесено {added} котиков из SQLite в PostgreSQL"
-
-@app.route('/admin/create_user', methods=['GET', 'POST'])
-@login_required
-def admin_create_user():
-    if current_user.role != 'admin':
-        flash('У вас нет доступа к этой странице', 'danger')
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        role = request.form.get('role')
-        
-        # Проверки
-        if User.query.filter_by(username=username).first():
-            flash('❌ Пользователь с таким логином уже существует', 'danger')
-            return redirect(url_for('admin_create_user'))
-        
-        if User.query.filter_by(email=email).first():
-            flash('❌ Пользователь с таким email уже существует', 'danger')
-            return redirect(url_for('admin_create_user'))
-        
-        if not password or len(password) < 4:
-            flash('❌ Пароль должен быть не менее 4 символов', 'danger')
-            return redirect(url_for('admin_create_user'))
-        
-        new_user = User(
-            username=username,
-            email=email,
-            password=generate_password_hash(password, method='pbkdf2:sha256'),
-            role=role,
-            email_confirmed=True,
-            email_confirmed_at=datetime.utcnow()
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        
-        flash(f'✅ Пользователь {username} создан с ролью {role}', 'success')
-        return redirect(url_for('admin_users'))
-    
-    return render_template('admin_create_user.html')
     
 @app.route('/admin/create_user', methods=['GET', 'POST'])
 @login_required
