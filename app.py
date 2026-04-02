@@ -46,17 +46,14 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # ========== НАСТРОЙКИ ДЛЯ СТАБИЛЬНОГО СОЕДИНЕНИЯ С POSTGRESQL ==========
+# Настройки для Supabase
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,      # Проверка соединения перед использованием
-    'pool_recycle': 280,        # Переподключение каждые 280 секунд
-    'pool_size': 5,             # Размер пула соединений
-    'max_overflow': 10,         # Максимум дополнительных соединений
+    'pool_pre_ping': True,
+    'pool_recycle': 280,
+    'pool_size': 5,
+    'max_overflow': 10,
     'connect_args': {
-        'connect_timeout': 10,   # Таймаут подключения
-        'keepalives': 1,         # Включить keepalive
-        'keepalives_idle': 30,   # Интервал keepalive
-        'keepalives_interval': 10,
-        'keepalives_count': 5
+        'sslmode': 'require'
     }
 }
 
