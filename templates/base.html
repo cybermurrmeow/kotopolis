@@ -424,6 +424,26 @@
                 });
             }, 7000);
         });
+        
+        // Сохраняем позицию скролла при любых действиях
+        (function() {
+            function saveScrollPosition() {
+                sessionStorage.setItem('scrollPos', window.scrollY);
+            }
+            function restoreScrollPosition() {
+                var pos = sessionStorage.getItem('scrollPos');
+                if (pos !== null) {
+                    window.scrollTo(0, parseInt(pos));
+                    sessionStorage.removeItem('scrollPos');
+                }
+            }
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('a, button')) saveScrollPosition();
+            });
+            document.addEventListener('submit', function() { saveScrollPosition(); });
+            window.addEventListener('load', restoreScrollPosition);
+            window.addEventListener('pageshow', restoreScrollPosition);
+        })();
     </script>
     {% block scripts %}{% endblock %}
 </body>
