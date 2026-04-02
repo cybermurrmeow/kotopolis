@@ -9,9 +9,9 @@
                 <p class="mb-0 small">Станьте частью нашей команды!</p>
             </div>
             <div class="card-body p-4">
-                <form method="POST">
-                    {{ form.csrf_token }}
-                    
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}   <!-- ← Важно! Правильный CSRF -->
+
                     <!-- Логин -->
                     <div class="mb-3">
                         <label class="form-label">
@@ -50,7 +50,7 @@
                             <i class="fas fa-lock"></i> {{ form.password.label.text }}
                         </label>
                         <div class="input-group">
-                            {{ form.password(class="form-control", id="password", type="password", placeholder="Минимум 4 символа") }}
+                            {{ form.password(class="form-control", id="password", placeholder="Минимум 4 символа") }}
                             <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -71,7 +71,7 @@
                             <i class="fas fa-check-circle"></i> {{ form.confirm_password.label.text }}
                         </label>
                         <div class="input-group">
-                            {{ form.confirm_password(class="form-control", id="confirm_password", type="password", placeholder="Повторите пароль") }}
+                            {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="Повторите пароль") }}
                             <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -86,9 +86,10 @@
                     </div>
                     
                     <button type="submit" class="btn btn-pink w-100 py-2">
-                        <i class="fas fa-check"></i> {{ form.submit.label.text }}
+                        <i class="fas fa-check"></i> Зарегистрироваться
                     </button>
                 </form>
+                
                 <hr>
                 <div class="text-center">
                     <p class="mb-0">
@@ -114,30 +115,30 @@
 </style>
 
 <script>
-    // Показать/скрыть пароль
-    const togglePassword = document.getElementById('togglePassword');
-    const password = document.getElementById('password');
-    
-    if (togglePassword && password) {
-        togglePassword.addEventListener('click', function() {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+// Показать/скрыть пароль
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordField = document.getElementById('password');
+    const icon = this.querySelector('i');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     }
-    
-    // Показать/скрыть подтверждение пароля
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    const confirmPassword = document.getElementById('confirm_password');
-    
-    if (toggleConfirmPassword && confirmPassword) {
-        toggleConfirmPassword.addEventListener('click', function() {
-            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPassword.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+});
+
+// Показать/скрыть подтверждение пароля
+document.getElementById('toggleConfirmPassword').addEventListener('click', function () {
+    const confirmField = document.getElementById('confirm_password');
+    const icon = this.querySelector('i');
+    if (confirmField.type === 'password') {
+        confirmField.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        confirmField.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     }
+});
 </script>
 {% endblock %}
