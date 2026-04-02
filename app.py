@@ -953,6 +953,23 @@ def admin_create_user():
     
     return render_template('admin_create_user.html')
 
+@app.route('/admin/add-bio-column')
+@login_required
+def add_bio_column():
+    if current_user.role != 'admin':
+        return "Только для админа"
+    
+    from sqlalchemy import text
+    
+    with app.app_context():
+        try:
+            db.session.execute(text('ALTER TABLE users ADD COLUMN bio TEXT'))
+            db.session.commit()
+            return "✅ Колонка bio успешно добавлена!"
+        except Exception as e:
+            return f"⚠️ Ошибка: {e}"
+        
+
 # ====================== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ПО EMAIL ======================
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
