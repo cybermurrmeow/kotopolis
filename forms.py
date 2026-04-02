@@ -10,21 +10,15 @@ from wtforms.validators import (
 )
 
 # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-from models import User   # ← ЭТО САМАЯ ВАЖНАЯ СТРОКА!
+from models import User   # ← Оставляем, потому что используется для логина
 # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
 
-# ========== КАСТОМНЫЕ ВАЛИДАТОРЫ ДЛЯ УНИКАЛЬНОСТИ ==========
+# ========== КАСТОМНЫЕ ВАЛИДАТОРЫ ==========
 def unique_username(form, field):
     username = field.data.strip().lower()
     if User.query.filter_by(username=username).first():
         raise ValidationError('Пользователь с таким логином уже существует')
-
-
-def unique_email(form, field):
-    email = field.data.strip().lower() if field.data else None
-    if email and User.query.filter_by(email=email).first():
-        raise ValidationError('Пользователь с таким email уже существует. Используйте другой адрес')
 
 
 # ========== ФОРМА ВХОДА ==========
@@ -46,14 +40,14 @@ class RegisterForm(FlaskForm):
         DataRequired(message='Логин обязателен'),
         Length(min=3, max=80, message='Логин должен быть от 3 до 80 символов'),
         Regexp(r'^[a-zA-Z0-9_а-яА-ЯёЁ\s]+$', message='Логин может содержать буквы, цифры и _'),
-        unique_username          # ← Подключили валидатор
+        unique_username          # ← Только проверка логина
     ])
     
     email = StringField('Email', validators=[
         DataRequired(message='Email обязателен'),
         Email(message='Введите корректный email адрес'),
-        Length(max=120, message='Email не должен превышать 120 символов'),
-        unique_email             # ← Подключили валидатор
+        Length(max=120, message='Email не должен превышать 120 символов')
+        # unique_email — УБРАЛИ! Теперь можно регистрировать несколько аккаунтов на один email
     ])
     
     password = PasswordField('Пароль', validators=[
