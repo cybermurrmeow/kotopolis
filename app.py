@@ -890,6 +890,39 @@ def delete_request(request_id):
     
     return redirect(url_for('adoption_requests'))
 
+@app.route('/admin/migrate-cats')
+@login_required
+def migrate_cats():
+    if current_user.role != 'admin':
+        return "Только для админа"
+    
+    import sqlite3
+    from models import Cat
+    
+    # Подключение к SQLite
+    sqlite_conn = sqlite3.connect('instance/kotopolis.db')
+    sqlite_cursor = sqlite_conn.cursor()
+    sqlite_cursor.execute("SELECT name, nickname, age, breed, gender, color, weight, mood, favorite_toy, status, health, description, photo_path, personality, activity_level, kids_friendly, cats_friendly, dogs_friendly, favorite_place, vocal, food_preferences, story, adoption_recommendation FROM cats")
+    
+    added = 0
+    for row in sqlite_cursor.fetchall():
+        if not Cat.query.filter_by(name=row[0]).first():
+            cat = Cat(
+                name=row[0], nickname=row[1], age=row[2], breed=row[3],
+                gender=row[4], color=row[5], weight=row[6], mood=row[7],
+                favorite_toy=row[8], status=row[9], health=row[10],
+                description=row[11], photo_path=row[12], personality=row[13],
+                activity_level=row[14], kids_friendly=row[15],
+                cats_friendly=row[16], dogs_friendly=row[17],
+                favorite_place=row[18], vocal=row[19], food_preferences=row[20],
+                story=row[21], adoption_recommendation=row[22]
+            )
+            db.session.add(cat)
+            added += 1
+    
+    db.session.commit()
+    sqlite_conn.close()
+    return f"✅ Перенесено {added} котиков из SQLite в PostgreSQL"
 
 # ====================== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ПО EMAIL ======================
 @app.route('/forgot_password', methods=['GET', 'POST'])
