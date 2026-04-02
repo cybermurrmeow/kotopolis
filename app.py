@@ -54,6 +54,13 @@ app.config['MAIL_PASSWORD'] = 'Dsm-L88-G93-tXa'
 app.config['MAIL_DEFAULT_SENDER'] = 'kotopolis.cat@rambler.ru'
 app.config['MAIL_SUPPRESS_SEND'] = False
 app.config['TESTING'] = False
+# Настройки для предотвращения разрыва соединения с БД
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 3600,
+    'pool_size': 5,
+    'max_overflow': 10
+}
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
