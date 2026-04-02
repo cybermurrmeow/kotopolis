@@ -19,14 +19,21 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">🔐 Пароль</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" required minlength="4">
+                                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Минимум 4 символа</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">👑 Роль</label>
                             <select name="role" class="form-select">
-                                <option value="user">Пользователь</option>
+                                <option value="user">Обычный пользователь</option>
                                 <option value="volunteer">Волонтёр</option>
                             </select>
+                            <small class="text-muted">Администратора можно создать только через базу данных</small>
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-pink">Создать</button>
@@ -38,4 +45,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Показать/скрыть пароль
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    togglePassword.addEventListener('click', function() {
+        // Переключаем тип input
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Меняем иконку
+        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    });
+</script>
 {% endblock %}
