@@ -1,4 +1,4 @@
-# ========== ТОЛЬКО ЭТИ ИМПОРТЫ ==========
+# ========== ИМПОРТЫ ==========
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import (
@@ -8,7 +8,23 @@ from wtforms import (
 from wtforms.validators import (
     DataRequired, Length, Optional, Email, EqualTo, Regexp, ValidationError
 )
-from wtforms.validators import Email
+
+# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+from models import User   # ← ЭТО САМАЯ ВАЖНАЯ СТРОКА!
+# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+
+
+# ========== КАСТОМНЫЕ ВАЛИДАТОРЫ ДЛЯ УНИКАЛЬНОСТИ ==========
+def unique_username(form, field):
+    username = field.data.strip().lower()
+    if User.query.filter_by(username=username).first():
+        raise ValidationError('Пользователь с таким логином уже существует')
+
+
+def unique_email(form, field):
+    email = field.data.strip().lower() if field.data else None
+    if email and User.query.filter_by(email=email).first():
+        raise ValidationError('Пользователь с таким email уже существует. Используйте другой адрес')
 
 
 # ========== ФОРМА ВХОДА ==========
@@ -29,13 +45,15 @@ class RegisterForm(FlaskForm):
     username = StringField('Логин', validators=[
         DataRequired(message='Логин обязателен'),
         Length(min=3, max=80, message='Логин должен быть от 3 до 80 символов'),
-        Regexp(r'^[a-zA-Z0-9_]+$', message='Логин может содержать только латинские буквы, цифры и знак подчеркивания')
+        Regexp(r'^[a-zA-Z0-9_а-яА-ЯёЁ\s]+$', message='Логин может содержать буквы, цифры и _'),
+        unique_username          # ← Подключили валидатор
     ])
     
     email = StringField('Email', validators=[
         DataRequired(message='Email обязателен'),
-        Email(message='Введите корректный email адрес'),  # ЭТО ВАЖНО!
-        Length(max=120, message='Email не должен превышать 120 символов')
+        Email(message='Введите корректный email адрес'),
+        Length(max=120, message='Email не должен превышать 120 символов'),
+        unique_email             # ← Подключили валидатор
     ])
     
     password = PasswordField('Пароль', validators=[
