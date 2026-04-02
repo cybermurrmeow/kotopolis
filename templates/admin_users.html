@@ -1,58 +1,72 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4"><i class="fas fa-users"></i> Управление пользователями</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-users"></i> Управление пользователями</h1>
+        <a href="{{ url_for('admin_create_user') }}" class="btn btn-pink">
+            <i class="fas fa-user-plus"></i> Создать пользователя
+        </a>
+    </div>
     
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-pink">
-                <tr>
-                    <th>ID</th>
-                    <th>Имя пользователя</th>
-                    <th>Email</th>
-                    <th>Текущая роль</th>
-                    <th>Сменить роль</th>
-                    <th>Удалить</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td><strong>{{ user.username }}</strong></td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'success' if user.role == 'volunteer' else 'secondary' }}">
-                            {% if user.role == 'admin' %}Администратор
-                            {% elif user.role == 'volunteer' %}Волонтёр
-                            {% else %}Пользователь{% endif %}
-                        </span>
-                    </td>
-                    <td>
-                        <form method="POST" action="{{ url_for('set_role', user_id=user.id) }}" class="d-inline">
-                            <select name="role" class="form-select form-select-sm d-inline w-auto">
-                                <option value="user" {{ 'selected' if user.role == 'user' else '' }}>Пользователь</option>
-                                <option value="volunteer" {{ 'selected' if user.role == 'volunteer' else '' }}>Волонтёр</option>
-                                <option value="admin" {{ 'selected' if user.role == 'admin' else '' }}>Администратор</option>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-pink ms-2">Сменить</button>
-                        </form>
-                    </td>
-                    <td>
-                        {% if user.username != 'admin' %}
-                            <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Удалить пользователя {{ user.username }}?')">
-                                <i class="fas fa-trash"></i> Удалить
-                            </a>
-                        {% else %}
-                            <span class="text-muted">Нельзя удалить</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Карточки пользователей (вертикальный список) -->
+    <div class="row">
+        {% for user in users %}
+        <div class="col-12 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Аватар/иконка -->
+                        <div class="col-md-1 text-center">
+                            <div class="rounded-circle bg-pink d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                        </div>
+                        <!-- Информация о пользователе -->
+                        <div class="col-md-3">
+                            <h5 class="mb-0">{{ user.username }}</h5>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </div>
+                        <!-- Роль -->
+                        <div class="col-md-2">
+                            <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'success' if user.role == 'volunteer' else 'secondary' }} p-2">
+                                {% if user.role == 'admin' %}👑 Администратор
+                                {% elif user.role == 'volunteer' %}🤝 Волонтёр
+                                {% else %}🐱 Пользователь{% endif %}
+                            </span>
+                        </div>
+                        <!-- Дата регистрации -->
+                        <div class="col-md-2">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                {{ user.created_at.strftime('%d.%m.%Y') if user.created_at else '-' }}
+                            </small>
+                        </div>
+                        <!-- Действия -->
+                        <div class="col-md-4">
+                            <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                {% if user.username != 'admin' %}
+                                    <form method="POST" action="{{ url_for('set_role', user_id=user.id) }}" class="d-inline">
+                                        <select name="role" class="form-select form-select-sm" style="width: auto; display: inline-block;">
+                                            <option value="user" {{ 'selected' if user.role == 'user' else '' }}>Пользователь</option>
+                                            <option value="volunteer" {{ 'selected' if user.role == 'volunteer' else '' }}>Волонтёр</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-pink">Сменить</button>
+                                    </form>
+                                    <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Удалить пользователя {{ user.username }}?')">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Нельзя изменить</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     
     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mt-3">
@@ -61,9 +75,24 @@
 </div>
 
 <style>
-.table-pink th {
+.bg-pink {
     background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
-    color: white;
+}
+.card {
+    transition: transform 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 105, 180, 0.15);
+}
+@media (max-width: 768px) {
+    .col-md-1, .col-md-3, .col-md-2, .col-md-4 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .d-flex {
+        justify-content: center !important;
+    }
 }
 </style>
 {% endblock %}
