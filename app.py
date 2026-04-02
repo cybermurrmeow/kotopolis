@@ -969,6 +969,23 @@ def add_bio_column():
         except Exception as e:
             return f"⚠️ Ошибка: {e}"
         
+@app.route('/test-email')
+@login_required
+def test_email():
+    if current_user.role != 'admin':
+        return "Только для админа"
+    
+    try:
+        msg = Message(
+            subject="Тестовое письмо от Котополиса",
+            recipients=[current_user.email],
+            body="Если вы видите это письмо — SMTP работает!"
+        )
+        mail.send(msg)
+        return "✅ Письмо отправлено!"
+    except Exception as e:
+        return f"❌ Ошибка: {e}"
+        
 
 # ====================== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ПО EMAIL ======================
 @app.route('/forgot_password', methods=['GET', 'POST'])
