@@ -45,6 +45,21 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+# ========== НАСТРОЙКИ ДЛЯ СТАБИЛЬНОГО СОЕДИНЕНИЯ С POSTGRESQL ==========
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,      # Проверка соединения перед использованием
+    'pool_recycle': 280,        # Переподключение каждые 280 секунд
+    'pool_size': 5,             # Размер пула соединений
+    'max_overflow': 10,         # Максимум дополнительных соединений
+    'connect_args': {
+        'connect_timeout': 10,   # Таймаут подключения
+        'keepalives': 1,         # Включить keepalive
+        'keepalives_idle': 30,   # Интервал keepalive
+        'keepalives_interval': 10,
+        'keepalives_count': 5
+    }
+}
+
 # ========== НАСТРОЙКИ EMAIL ==========
 app.config['MAIL_SERVER'] = 'smtp.rambler.ru'
 app.config['MAIL_PORT'] = 465
@@ -54,13 +69,6 @@ app.config['MAIL_PASSWORD'] = 'Dsm-L88-G93-tXa'
 app.config['MAIL_DEFAULT_SENDER'] = 'kotopolis.cat@rambler.ru'
 app.config['MAIL_SUPPRESS_SEND'] = False
 app.config['TESTING'] = False
-# Настройки для предотвращения разрыва соединения с БД
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_recycle': 3600,
-    'pool_size': 5,
-    'max_overflow': 10
-}
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -77,7 +85,11 @@ login_manager.login_message_category = 'warning'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    try:
+        return User.query.get(int(user_id))
+    except Exception as e:
+        print(f"Ошибка загрузки пользователя: {e}")
+        return None
 
 
 def send_confirmation_email(user):
@@ -1151,6 +1163,15 @@ def forbidden_error(error):
 def method_not_allowed_error(error):
     flash('⚠️ Метод не поддерживается', 'warning')
     return redirect(url_for('dashboard'))
+
+# ========== ОБРАБОТЧИК ОШИБОК БАЗЫ ДАННЫХ ==========
+from sqlalchemy.exc import OperationalError
+
+@app.errorhandler(OperationalError)
+def handle_db_disconnect(e):
+    db.session.rollback()
+    flash('🔄 Соединение с базой данных восстановлено. Попробуйте снова.', 'warning')
+    return redirect(request.url)
 
 
 # ====================== КОНТЕКСТНЫЙ ПРОЦЕССОР ======================
