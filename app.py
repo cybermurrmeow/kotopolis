@@ -205,47 +205,55 @@ def register():
             flash('🌸 Пароли не совпадают!', 'danger')
             return render_template('register.html', form=form)
 
-        # ==================== ИСПРАВЛЕННАЯ ПРОВЕРКА ЛОГИНА ====================
+        # ==================== ПРОВЕРКА ЛОГИНА ====================
         username_raw = form.username.data.strip()
 
-        if not username_raw or len(username_raw) < 2:
-            flash('🐱 Логин должен содержать минимум 2 символа', 'danger')
+        if not username_raw or len(username_raw) < 3:
+            flash('🐱 Логин должен содержать минимум 3 символа', 'danger')
             return render_template('register.html', form=form)
 
-        # Приводим логин к нижнему регистру для проверки уникальности
         username_lower = username_raw.lower()
 
-        # Проверяем, существует ли уже такой логин (без учёта регистра)
-        existing_user = User.query.filter_by(username=username_lower).first()
-
-        if existing_user:
+        if User.query.filter_by(username=username_lower).first():
             flash('🐱 Пользователь с таким логином уже существует. Придумайте другой.', 'danger')
             return render_template('register.html', form=form)
 
         # ==================== ПРОВЕРКА EMAIL ====================
-        email = form.email.data.strip().lower() if form.email.data else None
-        if email:
-            if User.query.filter_by(email=email).first():
-                flash('📧 Пользователь с таким email уже существует. Используйте другой адрес.', 'danger')
-                return render_template('register.html', form=form)
+        email_raw = form.email.data.strip() if form.email.data else ''
+        email = email_raw.lower() if email_raw else None
+
+        if not email:
+            flash('📧 Email обязателен для регистрации', 'danger')
+            return render_template('register.html', form=form)
+
+        # Главная проверка email
+        if User.query.filter_by(email=email).first():
+            flash('📧 Пользователь с таким email уже существует. Используйте другой адрес.', 'danger')
+            return render_template('register.html', form=form)
 
         # ==================== СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ ====================
         new_user = User(
-            username=username_lower,          # Сохраняем в нижнем регистре
+            username=username_lower,
             email=email,
             password=generate_password_hash(form.password.data, method='pbkdf2:sha256'),
             role='user',
             email_confirmed=False
         )
         
-        db.session.add(new_user)
-        db.session.commit()
-        
-        send_confirmation_email(new_user)
-        
-        flash('🎉 Регистрация прошла успешно! Проверьте почту для подтверждения email. 🩷', 'success')
-        return redirect(url_for('login'))
-    
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            
+            send_confirmation_email(new_user)
+            
+            flash('🎉 Регистрация прошла успешно! Проверьте почту для подтверждения email. 🩷', 'success')
+            return redirect(url_for('login'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('❌ Произошла ошибка при регистрации. Попробуйте ещё раз.', 'danger')
+            print(f"Ошибка при регистрации: {e}")
+
     return render_template('register.html', form=form)
 
 
