@@ -46,12 +46,12 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # ========== НАСТРОЙКИ EMAIL ==========
-app.config['MAIL_SERVER'] = 'smtp.unisender.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_SERVER'] = 'smtp.rambler.ru'
+app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'kotopolis.help@mail.ru'
-app.config['MAIL_PASSWORD'] = '6ccd1retmss1eakwcuj5pn6fgfz681orshxmubuo'
-app.config['MAIL_DEFAULT_SENDER'] = 'kotopolis.help@mail.ru'
+app.config['MAIL_USERNAME'] = 'kotopolis.cat@rambler.ru'
+app.config['MAIL_PASSWORD'] = 'Dsm-L88-G93-tXa'
+app.config['MAIL_DEFAULT_SENDER'] = 'kotopolis.cat@rambler.ru'
 app.config['MAIL_SUPPRESS_SEND'] = False
 app.config['TESTING'] = False
 
