@@ -795,6 +795,32 @@ def clean_users():
     db.session.commit()
     return f"🗑️ Удалены: {', '.join(deleted) if deleted else 'никого'}"
 
+@app.route('/admin/create-volunteer')
+@login_required
+def create_volunteer():
+    if current_user.role != 'admin':
+        return "Только для админа"
+    
+    from werkzeug.security import generate_password_hash
+    from datetime import datetime
+    
+    volunteer = User.query.filter_by(username='volunteer').first()
+    
+    if not volunteer:
+        volunteer = User(
+            username='volunteer',
+            email='volunteer@kotopolis.ru',
+            password=generate_password_hash('volunteer123', method='pbkdf2:sha256'),
+            role='volunteer',
+            email_confirmed=True,
+            email_confirmed_at=datetime.utcnow()
+        )
+        db.session.add(volunteer)
+        db.session.commit()
+        return "✅ Волонтёр создан: volunteer / volunteer123"
+    else:
+        return "⚠️ Волонтёр уже существует"
+    
 @app.route('/update_request_status/<int:request_id>', methods=['POST'])
 @login_required
 def update_request_status(request_id):
