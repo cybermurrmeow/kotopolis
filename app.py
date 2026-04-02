@@ -777,6 +777,25 @@ def set_role(user_id):
     # Важно: возвращаемся на тот же профиль, который смотрели
     return redirect(url_for('profile', user_id=user_id))
 
+@app.route('/admin/delete_user/<int:user_id>')
+@login_required
+def admin_delete_user(user_id):
+    if current_user.role != 'admin':
+        flash('У вас нет доступа к этому действию', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    if user.username == 'admin':
+        flash('❌ Нельзя удалить главного администратора!', 'danger')
+    else:
+        username = user.username
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'✅ Пользователь {username} удален', 'success')
+    
+    return redirect(url_for('admin_users'))
+
 @app.route('/admin/clean-users')
 @login_required
 def clean_users():

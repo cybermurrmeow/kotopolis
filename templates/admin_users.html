@@ -11,7 +11,8 @@
                     <th>Имя пользователя</th>
                     <th>Email</th>
                     <th>Текущая роль</th>
-                    <th>Действия</th>
+                    <th>Сменить роль</th>
+                    <th>Удалить</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,19 +22,32 @@
                     <td><strong>{{ user.username }}</strong></td>
                     <td>{{ user.email }}</td>
                     <td>
-                        <span class="badge bg-{{ 'success' if user.role == 'admin' else 'primary' if user.role == 'volunteer' else 'secondary' }}">
-                            {{ user.role }}
+                        <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'success' if user.role == 'volunteer' else 'secondary' }}">
+                            {% if user.role == 'admin' %}Администратор
+                            {% elif user.role == 'volunteer' %}Волонтёр
+                            {% else %}Пользователь{% endif %}
                         </span>
                     </td>
                     <td>
                         <form method="POST" action="{{ url_for('set_role', user_id=user.id) }}" class="d-inline">
                             <select name="role" class="form-select form-select-sm d-inline w-auto">
-                                <option value="user" {{ 'selected' if user.role == 'user' else '' }}>Обычный пользователь</option>
+                                <option value="user" {{ 'selected' if user.role == 'user' else '' }}>Пользователь</option>
                                 <option value="volunteer" {{ 'selected' if user.role == 'volunteer' else '' }}>Волонтёр</option>
                                 <option value="admin" {{ 'selected' if user.role == 'admin' else '' }}>Администратор</option>
                             </select>
-                            <button type="submit" class="btn btn-sm btn-pink ms-2">Сменить роль</button>
+                            <button type="submit" class="btn btn-sm btn-pink ms-2">Сменить</button>
                         </form>
+                    </td>
+                    <td>
+                        {% if user.username != 'admin' %}
+                            <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Удалить пользователя {{ user.username }}?')">
+                                <i class="fas fa-trash"></i> Удалить
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Нельзя удалить</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -45,4 +59,11 @@
         ← Вернуться на дашборд
     </a>
 </div>
+
+<style>
+.table-pink th {
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    color: white;
+}
+</style>
 {% endblock %}
