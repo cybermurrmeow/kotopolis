@@ -199,14 +199,12 @@ def register():
         return redirect(url_for('dashboard'))
     
     form = RegisterForm()
-    
     if form.validate_on_submit():
         # Проверка паролей
         if form.password.data != form.confirm_password.data:
             flash('🌸 Пароли не совпадают!', 'danger')
             return render_template('register.html', form=form)
 
-        # Проверка логина (оставляем уникальность логина)
         username_raw = form.username.data.strip()
         if not username_raw or len(username_raw) < 3:
             flash('🐱 Логин должен содержать минимум 3 символа', 'danger')
@@ -218,14 +216,12 @@ def register():
             flash('🐱 Пользователь с таким логином уже существует. Придумайте другой.', 'danger')
             return render_template('register.html', form=form)
 
-        # Email — без какой-либо проверки уникальности
         email = form.email.data.strip().lower() if form.email.data else None
 
         if not email:
             flash('📧 Email обязателен для регистрации', 'danger')
             return render_template('register.html', form=form)
 
-        # Создаём пользователя
         new_user = User(
             username=username_lower,
             email=email,
@@ -234,19 +230,14 @@ def register():
             email_confirmed=False
         )
         
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            
-            send_confirmation_email(new_user)
-            
-            flash('🎉 Регистрация прошла успешно! Проверьте почту для подтверждения email. 🩷', 'success')
-            return redirect(url_for('login'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash('❌ Произошла ошибка при регистрации. Попробуйте ещё раз.', 'danger')
-            print(f"Ошибка регистрации: {e}")
+        # Временно убрали try/except, чтобы видеть настоящую ошибку
+        db.session.add(new_user)
+        db.session.commit()
+        
+        send_confirmation_email(new_user)
+        
+        flash('🎉 Регистрация прошла успешно! Проверьте почту для подтверждения email. 🩷', 'success')
+        return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
 
