@@ -200,25 +200,44 @@ def register():
     
     form = RegisterForm()
     if form.validate_on_submit():
+        # Проверка совпадения паролей
         if form.password.data != form.confirm_password.data:
             flash('🌸 Пароли не совпадают!', 'danger')
             return render_template('register.html', form=form)
-        
-        if User.query.filter_by(username=form.username.data).first():
-            flash('🐱 Пользователь с таким логином уже существует', 'danger')
+
+        # ==================== ИСПРАВЛЕННАЯ ПРОВЕРКА ЛОГИНА ====================
+        username_raw = form.username.data.strip()
+
+        if not username_raw or len(username_raw) < 2:
+            flash('🐱 Логин должен содержать минимум 2 символа', 'danger')
             return render_template('register.html', form=form)
-        
-        if form.email.data and User.query.filter_by(email=form.email.data).first():
-            flash('📧 Пользователь с таким email уже существует', 'danger')
+
+        # Приводим логин к нижнему регистру для проверки уникальности
+        username_lower = username_raw.lower()
+
+        # Проверяем, существует ли уже такой логин (без учёта регистра)
+        existing_user = User.query.filter_by(username=username_lower).first()
+
+        if existing_user:
+            flash('🐱 Пользователь с таким логином уже существует. Придумайте другой.', 'danger')
             return render_template('register.html', form=form)
-        
+
+        # ==================== ПРОВЕРКА EMAIL ====================
+        email = form.email.data.strip().lower() if form.email.data else None
+        if email:
+            if User.query.filter_by(email=email).first():
+                flash('📧 Пользователь с таким email уже существует. Используйте другой адрес.', 'danger')
+                return render_template('register.html', form=form)
+
+        # ==================== СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ ====================
         new_user = User(
-            username=form.username.data,
-            email=form.email.data,
+            username=username_lower,          # Сохраняем в нижнем регистре
+            email=email,
             password=generate_password_hash(form.password.data, method='pbkdf2:sha256'),
             role='user',
             email_confirmed=False
         )
+        
         db.session.add(new_user)
         db.session.commit()
         
