@@ -777,6 +777,24 @@ def set_role(user_id):
     # Важно: возвращаемся на тот же профиль, который смотрели
     return redirect(url_for('profile', user_id=user_id))
 
+@app.route('/admin/clean-users')
+@login_required
+def clean_users():
+    if current_user.role != 'admin':
+        return "Только для админа"
+    
+    from app import app, db
+    from models import User
+    
+    deleted = []
+    for user in User.query.all():
+        if user.role not in ['admin', 'volunteer']:
+            deleted.append(user.username)
+            db.session.delete(user)
+    
+    db.session.commit()
+    return f"🗑️ Удалены: {', '.join(deleted) if deleted else 'никого'}"
+
 @app.route('/update_request_status/<int:request_id>', methods=['POST'])
 @login_required
 def update_request_status(request_id):
