@@ -14,7 +14,7 @@
         transform 0.22s ease,
         box-shadow 0.22s ease;
     height: 100%;
-    background: #fff;
+    background: var(--kp-theme-surface, #fff);
 }
 
 .cat-card:hover {
@@ -76,7 +76,7 @@
     font-size: 0.78rem;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    color: #8a7b82;
+    color: var(--kp-theme-muted, #8a7b82);
     margin-bottom: 0.18rem;
 }
 
@@ -188,13 +188,13 @@
 }
 
 .auth-help {
-    color: #81737a;
+    color: var(--kp-theme-muted, #81737a);
     font-size: 0.84rem;
     line-height: 1.45;
 }
 
 .auth-error {
-    color: #c7384f;
+    color: var(--kp-theme-pink-text, #c7384f);
     font-size: 0.84rem;
     margin-top: 0.35rem;
 }
