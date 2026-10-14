@@ -1,0 +1,216 @@
+:root {
+    --cat-radius: 22px;
+    --cat-soft-shadow: 0 8px 28px rgba(45, 31, 39, 0.08);
+    --cat-hover-shadow: 0 16px 38px rgba(45, 31, 39, 0.13);
+}
+
+.cat-card,
+.card.cat-card {
+    border: 0;
+    border-radius: var(--cat-radius);
+    overflow: hidden;
+    box-shadow: var(--cat-soft-shadow);
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+    height: 100%;
+    background: #fff;
+}
+
+.cat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--cat-hover-shadow);
+}
+
+.cat-card img,
+.cat-card .card-img-top {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.cat-card .card-body {
+    padding: 1.15rem;
+}
+
+.cat-card .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.cat-card .cat-short-description,
+.cat-card .card-text {
+    line-height: 1.55;
+}
+
+.cat-card .cat-short-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cat-card .badge {
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+}
+
+.cat-card .btn {
+    border-radius: 12px;
+}
+
+.cat-profile-section {
+    line-height: 1.65;
+}
+
+.cat-profile-section p {
+    margin-bottom: 0;
+}
+
+.cat-profile-section + .cat-profile-section {
+    margin-top: 1rem;
+}
+
+.cat-info-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #8a7b82;
+    margin-bottom: 0.18rem;
+}
+
+.cat-info-value {
+    font-weight: 600;
+}
+
+.cat-status-home {
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: rgba(25, 135, 84, 0.08);
+}
+
+.cat-status-treatment {
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.cat-status-quarantine {
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: rgba(255, 152, 0, 0.1);
+}
+
+@media (max-width: 991.98px) {
+    .cat-card .card-body {
+        padding: 1rem;
+    }
+
+    .cat-card .card-title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .cat-card {
+        border-radius: 18px;
+    }
+
+    .cat-card img,
+    .cat-card .card-img-top {
+        aspect-ratio: 16 / 11;
+    }
+
+    .cat-card .card-body {
+        padding: 0.95rem;
+    }
+
+    .cat-card .btn {
+        min-height: 44px;
+    }
+
+    .cat-actions {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+    }
+
+    .cat-actions > * {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .cat-card .card-title {
+        font-size: 1.05rem;
+    }
+
+    .cat-card .card-text,
+    .cat-card .cat-short-description {
+        font-size: 0.94rem;
+    }
+}
+
+.auth-box {
+    max-width: 540px;
+    margin: 1rem auto 3rem;
+}
+
+.auth-card {
+    border: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 12px 38px rgba(40, 25, 33, 0.1);
+}
+
+.auth-head {
+    padding: 1.7rem 1.4rem;
+    text-align: center;
+}
+
+.auth-body {
+    padding: 1.6rem;
+}
+
+.auth-field {
+    margin-bottom: 1rem;
+}
+
+.auth-field label {
+    font-weight: 650;
+    margin-bottom: 0.4rem;
+}
+
+.auth-field .form-control {
+    min-height: 48px;
+    border-radius: 13px;
+}
+
+.auth-help {
+    color: #81737a;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.auth-error {
+    color: #c7384f;
+    font-size: 0.84rem;
+    margin-top: 0.35rem;
+}
+
+.auth-card .btn {
+    min-height: 48px;
+    border-radius: 13px;
+    font-weight: 650;
+}
+
+@media (max-width: 575.98px) {
+    .auth-card {
+        border-radius: 17px;
+    }
+
+    .auth-body {
+        padding: 1.15rem;
+    }
+}

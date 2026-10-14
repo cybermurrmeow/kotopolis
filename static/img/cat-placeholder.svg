@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-labelledby="title description">
+  <title id="title">Изображение котика пока не добавлено</title>
+  <desc id="description">Светлый фон с силуэтом кошачьей мордочки</desc>
+  <rect width="960" height="720" fill="#f3ecef"/>
+  <path d="M334 260 276 168l-21 170c-37 39-58 91-58 148 0 142 126 234 283 234s283-92 283-234c0-57-21-109-58-148l-21-170-58 92c-43-22-93-34-146-34s-103 12-146 34Z" fill="#d7c2cb"/>
+  <circle cx="386" cy="431" r="18" fill="#775c68"/>
+  <circle cx="574" cy="431" r="18" fill="#775c68"/>
+  <path d="M451 486h58l-29 27-29-27Z" fill="#b76d8d"/>
+  <path d="M480 512c-18 27-48 33-77 22m77-22c18 27 48 33 77 22" fill="none" stroke="#775c68" stroke-linecap="round" stroke-width="12"/>
+</svg>

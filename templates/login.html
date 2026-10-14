@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Вход · Котополис{% endblock %}
+{% block content %}
+<section class="kp-auth3 kp-auth3-login" aria-labelledby="auth-title">
+    <aside class="kp-auth3-scene" aria-label="Котополис">
+        <span class="kp-auth3-brand">Котополис</span>
+        <div class="kp-auth3-scene-copy">
+            <h2>Здесь тебя <br>помнят.</h2>
+            <p>Возвращайся к тем, кто уже стал тебе близок.</p>
+        </div>
+        <img
+            class="kp-auth3-cat kp-auth3-cat-gif"
+            src="{{ url_for('static', filename='img/login-cat.gif') }}"
+            alt=""
+            aria-hidden="true"
+        >
+        <span class="kp-auth3-scene-note">Тихое знакомство. Настоящая привязанность.</span>
+    </aside>
+    <div class="kp-auth3-panel">
+        <div class="kp-auth3-form-head"><span class="kp-auth3-eyebrow">С возвращением</span><h1 id="auth-title">Рады тебя видеть</h1><p>Войди, чтобы продолжить знакомство.</p></div>
+        <div data-auth-messages class="kp-auth3-messages" aria-live="polite"></div>
+        <form method="POST" novalidate data-auth-form="login">
+            {{ form.hidden_tag() }}
+            <div class="kp-auth3-field">
+                <label for="login-identity">Логин или email</label>
+
+                {{ form.username_or_email(id='login-identity', class_='kp-auth3-input' + (' is-invalid' if form.username_or_email.errors else ''), autocomplete='username', autocapitalize='none', spellcheck='false', aria_describedby='login-identity-error', aria_invalid='true' if form.username_or_email.errors else 'false', placeholder='Твой логин или почта') }}
+
+
+                <div class="kp-auth3-error" id="login-identity-error">{% for error in form.username_or_email.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <div class="kp-auth3-field">
+                <label for="login-password">Пароль</label>
+                <div class="kp-auth3-password">
+                {{ form.password(id='login-password', class_='kp-auth3-input' + (' is-invalid' if form.password.errors else ''), autocomplete='current-password', aria_describedby='login-password-error', aria_invalid='true' if form.password.errors else 'false', placeholder='Твой пароль') }}
+                    <button type="button" class="kp-auth3-password-toggle" data-auth-password="login-password" aria-controls="login-password" aria-label="Показать пароль" aria-pressed="false">Показать</button>
+                </div>
+
+                <div class="kp-auth3-error" id="login-password-error">{% for error in form.password.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <div class="kp-auth3-forgot"><a href="{{ url_for('forgot_password') }}">Забыла пароль?</a></div>
+            <button class="kp-auth3-submit" type="submit" name="submit">Войти</button>
+        </form>
+                <form
+            method="POST"
+            action="{{ url_for('guest_login') }}"
+            style="margin-top: 12px;"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <button
+                type="submit"
+                class="kp-auth3-submit"
+                style="
+                    background: transparent;
+                    color: #7a3b59;
+                    border: 1px solid #b98ca1;
+                    box-shadow: none;
+                "
+            >
+                Продолжить как гость
+            </button>
+        </form>
+
+        <p
+            style="
+                margin: 8px 0 18px;
+                text-align: center;
+                color: #8d8187;
+                font-size: 12px;
+            "
+        >
+            Без регистрации · только просмотр
+        </p>
+
+        <p class="kp-auth3-switch">Нет аккаунта? <a href="{{ url_for('register') }}">Создать аккаунт</a></p>
+        <p class="kp-auth3-small-note">Если на почте несколько аккаунтов, используй логин.</p>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js', v='20261003-1') }}" defer></script>{% endblock %}

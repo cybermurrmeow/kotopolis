@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Экспорт · Котополис
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.export-page {
+    max-width: 900px;
+    margin: 0 auto 3rem;
+}
+
+.export-card {
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 10px 32px rgba(40,25,33,.08);
+    height: 100%;
+}
+
+.export-icon {
+    font-size: 2.2rem;
+}
+
+.export-api-box {
+    border-radius: 18px;
+}
+
+.export-api-box code {
+    word-break: break-all;
+}
+
+</style>
+
+
+<div class="export-page">
+
+    <div class="mb-4">
+
+        <h1 class="dashboard-title mb-1">
+            Экспорт данных
+        </h1>
+
+        <p class="text-muted mb-0">
+            Выгрузка данных Котополиса
+            и доступ к API.
+        </p>
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <div class="col-md-4">
+
+            <div class="card export-card">
+
+                <div class="card-body text-center p-4">
+
+                    <div
+                        class="export-icon"
+                        aria-hidden="true"
+                    >
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+
+                    <h5 class="mt-3">
+                        CSV
+                    </h5>
+
+                    <p class="text-muted small">
+                        Табличные данные с разделителем
+                        «точка с запятой».
+                    </p>
+
+                    <a
+                        href="{{ url_for(
+                            'export_cats_csv'
+                        ) }}"
+                        class="btn btn-outline-pink w-100"
+                    >
+                        Скачать CSV
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card export-card">
+
+                <div class="card-body text-center p-4">
+
+                    <div
+                        class="export-icon"
+                        aria-hidden="true"
+                    >
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+
+                    <h5 class="mt-3">
+                        Excel
+                    </h5>
+
+                    <p class="text-muted small">
+                        XLSX с данными и отдельным
+                        листом статистики.
+                    </p>
+
+                    <a
+                        href="{{ url_for(
+                            'export_cats_excel'
+                        ) }}"
+                        class="btn btn-outline-pink w-100"
+                    >
+                        Скачать Excel
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card export-card">
+
+                <div class="card-body text-center p-4">
+
+                    <div
+                        class="export-icon"
+                        aria-hidden="true"
+                    >
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+
+                    <h5 class="mt-3">
+                        PDF
+                    </h5>
+
+                    <p class="text-muted small">
+                        Готовый отчёт со статистикой
+                        и карточками котиков.
+                    </p>
+
+                    <a
+                        href="{{ url_for(
+                            'export_cats_pdf'
+                        ) }}"
+                        class="btn btn-outline-pink w-100"
+                    >
+                        Скачать PDF
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card export-card mt-4">
+
+        <div class="card-body p-4">
+
+            <h5>
+                API для интеграций
+            </h5>
+
+            <p class="text-muted">
+                API доступен авторизованным
+                пользователям сайта.
+            </p>
+
+            <div class="export-api-box border p-3 mb-3">
+
+                <strong>
+                    Все котики
+                </strong>
+
+                <div class="mt-1">
+                    <code>
+                        GET /api/cats
+                    </code>
+                </div>
+
+                <a
+                    href="{{ url_for(
+                        'api_cats'
+                    ) }}"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-secondary mt-2"
+                >
+                    Открыть JSON
+                </a>
+
+            </div>
+
+
+            <div class="export-api-box border p-3">
+
+                <strong>
+                    Статистика
+                </strong>
+
+                <div class="mt-1">
+                    <code>
+                        GET /api/stats
+                    </code>
+                </div>
+
+                <a
+                    href="{{ url_for(
+                        'api_stats'
+                    ) }}"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-secondary mt-2"
+                >
+                    Открыть JSON
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

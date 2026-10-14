@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль · Котополис{% endblock %}
+
+{% block content %}
+
+<section class="kp-profile2-page" aria-labelledby="profile-page-title">
+
+    <header class="kp-profile2-header">
+
+        <div class="kp-profile2-user">
+
+            <div
+                class="kp-profile2-avatar"
+                aria-hidden="true"
+            >
+                {{ user.username[:1].upper() }}
+            </div>
+
+            <div class="kp-profile2-user-copy">
+
+                <div class="kp-profile2-kicker">
+                    Личный кабинет
+                </div>
+
+                <h1 id="profile-page-title">{{ user.username }}</h1>
+
+                <div class="kp-profile2-email-row">
+
+                    <span class="kp-profile2-email">
+                        {{ user.email }}
+                    </span>
+
+                    {% if user.email_confirmed %}
+                    <span class="kp-profile2-confirmed">
+                        <i
+                            class="fas fa-check"
+                            aria-hidden="true"
+                        ></i>
+                        Почта подтверждена
+                    </span>
+                    {% endif %}
+
+                </div>
+
+                {% if user.role == 'admin' %}
+                <div class="kp-profile2-role">
+                    Администратор
+                </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <div class="kp-profile2-layout">
+
+        <aside class="kp-profile2-sidebar">
+
+            
+
+
+            <section class="kp-profile2-card">
+
+                <div class="kp-profile2-card-heading">
+
+                    <div class="kp-profile2-card-kicker">
+                        Аккаунт
+                    </div>
+
+                    <h2>Информация</h2>
+
+                </div>
+
+                <dl class="kp-profile2-account-list">
+
+                    <div>
+                        <dt>Логин</dt>
+                        <dd>{{ user.username }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>Почта</dt>
+                        <dd>{{ user.email }}</dd>
+                    </div>
+
+                    {% if user.created_at %}
+                    <div>
+                        <dt>Регистрация</dt>
+                        <dd>
+                            {{ user.created_at.strftime('%d.%m.%Y') }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                    {% if user.last_login %}
+                    <div>
+                        <dt>Последний вход</dt>
+                        <dd>
+                            {{ user.last_login.strftime('%d.%m.%Y %H:%M') }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                </dl>
+
+                <a
+                    href="{{ url_for('edit_profile') }}"
+                    class="kp-profile2-edit-link"
+                >
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    Редактировать профиль
+                </a>
+
+            </section>
+
+
+            <section class="kp-profile2-security">
+
+                <div>
+
+                    <div class="kp-profile2-card-kicker">
+                        Безопасность
+                    </div>
+
+                    <h2>Пароль</h2>
+
+                    <p>
+                        Если хочешь обновить пароль,
+                        это можно сделать отдельно.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{{ url_for('change_password') }}"
+                    class="kp-profile2-security-link"
+                >
+                    Изменить пароль
+
+                    <i
+                        class="fas fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+
+            </section>
+
+        </aside>
+
+
+        <section
+            class="kp-profile2-requests"
+            id="profileRequests"
+        >
+
+            <div class="kp-profile2-requests-head">
+
+                <div>
+
+                    <div class="kp-profile2-card-kicker">
+                        Усыновление
+                    </div>
+
+                    <h2>Мои заявки</h2>
+
+                    <p>
+                        Здесь отображается состояние всех твоих заявок.
+                    </p>
+
+                </div>
+
+                {% if requests %}
+                <div class="kp-profile2-request-count">
+                    {{ requests|length }}
+                </div>
+                {% endif %}
+
+            </div>
+
+
+            {% if requests %}
+
+            <div class="kp-profile2-request-list">
+
+                {% for item in requests %}
+
+                <article class="kp-profile2-request">
+
+                    <div class="kp-profile2-request-top">
+
+                        <div>
+
+                            <a
+                                href="{{ url_for(
+                                    'cat_details',
+                                    cat_id=item.cat.id
+                                ) }}"
+                                class="kp-profile2-request-name"
+                            >
+                                {{ item.cat.name }}
+                            </a>
+
+                            <div class="kp-profile2-request-date">
+                                Заявка от
+                                {{ item.request_date.strftime('%d.%m.%Y') }}
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            class="kp-profile2-status"
+                            data-status="{{ item.status }}"
+                        >
+                            {{ item.status }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="kp-profile2-request-actions">
+
+                        <a
+                            href="{{ url_for(
+                                'cat_details',
+                                cat_id=item.cat.id
+                            ) }}"
+                            class="kp-profile2-open-cat"
+                        >
+                            Открыть котика
+
+                            <i
+                                class="fas fa-arrow-right"
+                                aria-hidden="true"
+                            ></i>
+                        </a>
+
+
+                        {% if item.status not in [
+                            'Одобрена',
+                            'Отклонена',
+                            'Отменена'
+                        ] %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'cancel_my_request',
+                                request_id=item.id
+                            ) }}"
+                            class="kp-profile2-cancel-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="kp-profile2-cancel"
+                            >
+                                Отменить заявку
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="kp-profile2-empty">
+
+                <div
+                    class="kp-profile2-empty-mark"
+                    aria-hidden="true"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <h3>Заявок пока нет</h3>
+
+                <p>
+                    Выбери котика, и после отправки заявки
+                    её статус появится здесь.
+                </p>
+
+                <a
+                    href="{{ url_for('cats') }}"
+                    class="btn btn-outline-pink kp-profile2-empty-action"
+                >
+                    Выбрать котика
+
+                    <i
+                        class="fas fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</section>
+
+
+
+
+{% endblock %}

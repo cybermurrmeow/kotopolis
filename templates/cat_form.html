@@ -1,0 +1,1086 @@
+{% extends 'base.html' %}
+
+{% block title %}{% block form_page_title %}Котополис{% endblock %}{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const fileButton =
+        document.getElementById(
+            "mediaSourceFile"
+        );
+
+    const urlButton =
+        document.getElementById(
+            "mediaSourceUrl"
+        );
+
+    const fileFields =
+        document.getElementById(
+            "mediaFileFields"
+        );
+
+    const urlFields =
+        document.getElementById(
+            "mediaUrlFields"
+        );
+
+    const fileInput =
+        document.getElementById(
+            "{{ form.photo.id }}"
+        );
+
+    const urlInput =
+        document.getElementById(
+            "{{ form.gif_url.id }}"
+        );
+
+    const previewBox =
+        document.getElementById(
+            "mediaPreviewBox"
+        );
+
+    const preview =
+        document.getElementById(
+            "mediaPreview"
+        );
+
+
+    const setSource = (mode) => {
+
+        const fileMode =
+            mode === "file";
+
+        if (fileFields) {
+            fileFields.hidden =
+                !fileMode;
+        }
+
+        if (urlFields) {
+            urlFields.hidden =
+                fileMode;
+        }
+
+        fileButton?.classList.toggle(
+            "active",
+            fileMode
+        );
+
+        urlButton?.classList.toggle(
+            "active",
+            !fileMode
+        );
+
+        fileButton?.setAttribute(
+            "aria-pressed",
+            String(fileMode)
+        );
+
+        urlButton?.setAttribute(
+            "aria-pressed",
+            String(!fileMode)
+        );
+    };
+
+
+    fileButton?.addEventListener(
+        "click",
+        () => setSource("file")
+    );
+
+    urlButton?.addEventListener(
+        "click",
+        () => setSource("url")
+    );
+
+
+    fileInput?.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                fileInput.files?.[0];
+
+            if (!file) {
+                previewBox.hidden = true;
+                preview.removeAttribute("src");
+                return;
+            }
+
+            const reader =
+                new FileReader();
+
+            reader.addEventListener(
+                "load",
+                () => {
+
+                    preview.src =
+                        String(reader.result);
+
+                    previewBox.hidden =
+                        false;
+                }
+            );
+
+            reader.readAsDataURL(file);
+        }
+    );
+
+
+    urlInput?.addEventListener(
+        "input",
+        () => {
+
+            const value =
+                urlInput.value.trim();
+
+            if (!value) {
+                previewBox.hidden = true;
+                preview.removeAttribute("src");
+                return;
+            }
+
+            preview.src = value;
+            previewBox.hidden = false;
+        }
+    );
+
+
+    preview?.addEventListener(
+        "error",
+        () => {
+
+            previewBox.hidden = true;
+        }
+    );
+
+
+    if (
+        urlInput
+        &&
+        urlInput.value.trim()
+    ) {
+        setSource("url");
+        preview.src =
+            urlInput.value.trim();
+
+        previewBox.hidden = false;
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.cat-form-page {
+    max-width: 980px;
+    margin: 0 auto 3rem;
+}
+
+.cat-form-card {
+    border: 0;
+    border-radius: 24px;
+    box-shadow: 0 12px 38px rgba(40,25,33,.09);
+    overflow: hidden;
+}
+
+.cat-form-header {
+    padding: 1.5rem;
+}
+
+.cat-form-body {
+    padding: 1.5rem;
+}
+
+.cat-form-section {
+    padding: 1.2rem;
+    border: 1px solid rgba(0,0,0,.07);
+    border-radius: 16px;
+    margin-bottom: 1.2rem;
+}
+
+.cat-form-section h5 {
+    font-weight: 750;
+    margin-bottom: 1rem;
+}
+
+.cat-form-body .form-control,
+.cat-form-body .form-select {
+    min-height: 46px;
+    border-radius: 12px;
+}
+
+.cat-form-body textarea.form-control {
+    min-height: 100px;
+}
+
+.cat-field {
+    margin-bottom: 1rem;
+}
+
+.cat-error {
+    color: #c7384f;
+    font-size: .84rem;
+    margin-top: .3rem;
+}
+
+.cat-current-media {
+    max-width: 220px;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.cat-actions {
+    display: flex;
+    gap: .7rem;
+}
+
+@media (max-width:575.98px) {
+
+    .cat-form-body {
+        padding: 1rem;
+    }
+
+    .cat-form-section {
+        padding: 1rem;
+    }
+
+    .cat-actions {
+        flex-direction: column;
+    }
+
+    .cat-actions .btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="cat-form-page">
+
+    <div class="card cat-form-card">
+
+        <div class="cat-form-header kp-form-head-neutral">
+
+            <h1 class="h4 mb-0">
+                {% block form_title %}
+                Котик
+                {% endblock %}
+            </h1>
+
+        </div>
+
+
+        <div class="cat-form-body">
+
+
+            {% if cat and cat.photo_path %}
+
+            <div class="mb-4">
+
+                <div class="fw-semibold mb-2">
+                    Текущее изображение
+                </div>
+
+                {% if cat.photo_path.startswith('http') %}
+
+                <img
+                    src="{{ cat.photo_path }}"
+                    class="cat-current-media"
+                    alt="{{ cat.name }}"
+                >
+
+                {% else %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename=cat.photo_path
+                    ) }}"
+                    class="cat-current-media"
+                    alt="{{ cat.name }}"
+                >
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                novalidate
+            >
+
+                {{ form.hidden_tag() }}
+
+                <p class="kp-required-note">
+                    Для сохранения обязательно только имя котика.
+                    Остальные сведения можно дополнить позже.
+                </p>
+
+                <nav
+                    class="kp-cat-form-nav"
+                    aria-label="Разделы формы котика"
+                >
+                    <a href="#cat-form-profile">Профиль</a>
+                    <a href="#cat-form-home">Дом и характер</a>
+                    <a href="#cat-form-health">Здоровье и статус</a>
+                    <a href="#cat-form-story">Фото и история</a>
+                </nav>
+
+
+                <div class="cat-form-section" id="cat-form-profile">
+
+                    <h5>
+                        Основная информация
+                    </h5>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 cat-field">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.name.id }}"
+                            >
+                                Имя
+                                <span
+                                    class="kp-required-mark"
+                                    aria-hidden="true"
+                                >*</span>
+                                <span class="visually-hidden">
+                                    обязательное поле
+                                </span>
+                            </label>
+
+                            {{ form.name(
+                                class="form-control"
+                            ) }}
+
+                            {% for error in form.name.errors %}
+                            <div class="cat-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.nickname.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.nickname(
+                                class="form-control"
+                            ) }}
+
+                            {% for error in form.nickname.errors %}
+                            <div class="cat-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-sm-6 col-md-3 cat-field">
+
+                            {{ form.age.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.age(
+                                class="form-control",
+                                min="0",
+                                max="30"
+                            ) }}
+
+                            {% for error in form.age.errors %}
+                            <div class="cat-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-sm-6 col-md-3 cat-field">
+
+                            {{ form.weight.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.weight(
+                                class="form-control",
+                                min="0.2",
+                                max="30",
+                                step="0.1"
+                            ) }}
+
+                            {% for error in form.weight.errors %}
+                            <div class="cat-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.breed.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.breed(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-4 cat-field">
+
+                            {{ form.gender.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.gender(
+                                class="form-select"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-4 cat-field">
+
+                            {{ form.color.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.color(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-4 cat-field">
+
+                            {{ form.mood.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.mood(
+                                class="form-select"
+                            ) }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cat-form-section" id="cat-form-status">
+
+                    <h5>
+                        Статус и даты
+                    </h5>
+
+                    <div class="row">
+
+
+                        <div class="col-md-4 cat-field">
+
+                            {{ form.status.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.status(
+                                class="form-select",
+                                id="catStatus"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-4 cat-field">
+
+                            {{ form.arrival_date.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.arrival_date(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div
+                            class="col-md-4 cat-field"
+                            id="adoptionDateBox"
+                        >
+
+                            {{ form.adoption_date.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.adoption_date(
+                                class="form-control"
+                            ) }}
+
+                            <div class="form-text">
+                                Используется только при статусе
+                                «Усыновлён».
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cat-form-section" id="cat-form-health">
+
+                    <h5>
+                        Здоровье
+                    </h5>
+
+                    <div class="row">
+
+
+                        <div class="col-12 cat-field">
+
+                            {{ form.health.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.health(
+                                class="form-control",
+                                rows="3"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.last_vacc_date.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.last_vacc_date(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.next_vacc_date.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.next_vacc_date(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-check mb-3">
+
+                                {{ form.is_vaccinated(
+                                    class="form-check-input"
+                                ) }}
+
+                                {{ form.is_vaccinated.label(
+                                    class="form-check-label"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-check mb-3">
+
+                                {{ form.is_sterilized(
+                                    class="form-check-input"
+                                ) }}
+
+                                {{ form.is_sterilized.label(
+                                    class="form-check-label"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cat-form-section" id="cat-form-home">
+
+                    <h5>
+                        Дом и характер
+                    </h5>
+
+                    <div class="row">
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.personality.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.personality(
+                                class="form-control",
+                                maxlength="150",
+                                placeholder="Например: спокойный, ласковый, осторожный"
+                            ) }}
+
+                            <div class="form-text">
+                                Короткая характеристика для карточки каталога.
+                                До 150 символов.
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.activity_level.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.activity_level(
+                                class="form-select"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.vocal.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.vocal(
+                                class="form-select"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.favorite_toy.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.favorite_toy(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.favorite_place.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.favorite_place(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-6 cat-field">
+
+                            {{ form.food_preferences.label(
+                                class="form-label"
+                            ) }}
+
+                            {{ form.food_preferences(
+                                class="form-control"
+                            ) }}
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="form-check mb-3">
+
+                                {{ form.kids_friendly(
+                                    class="form-check-input"
+                                ) }}
+
+                                {{ form.kids_friendly.label(
+                                    class="form-check-label"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="form-check mb-3">
+
+                                {{ form.cats_friendly(
+                                    class="form-check-input"
+                                ) }}
+
+                                {{ form.cats_friendly.label(
+                                    class="form-check-label"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="form-check mb-3">
+
+                                {{ form.dogs_friendly(
+                                    class="form-check-input"
+                                ) }}
+
+                                {{ form.dogs_friendly.label(
+                                    class="form-check-label"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cat-form-section" id="cat-form-story">
+
+                    <h5>
+                        История и описание
+                    </h5>
+
+
+                    <div class="cat-field">
+
+                        {{ form.description.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.description(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Характер, привычки и важные особенности котика"
+                        ) }}
+
+                        <div class="form-text">
+                            Подробный текст для страницы котика.
+                        </div>
+
+                    </div>
+
+
+                    <div class="cat-field">
+
+                        {{ form.story.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.story(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Как котик оказался в приюте"
+                        ) }}
+
+                    </div>
+
+
+                    <div class="cat-field">
+
+                        {{ form.adoption_recommendation.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.adoption_recommendation(
+                            class="form-control",
+                            rows="4",
+                            placeholder="Например: спокойный дом без собак"
+                        ) }}
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="cat-form-section"
+                    id="cat-form-media"
+                >
+
+                    <h5>
+                        Главное изображение
+                    </h5>
+
+                    <p class="form-text mb-3">
+                        Выбери один источник. Перед сохранением можно
+                        проверить, как будет выглядеть новое изображение.
+                    </p>
+
+                    <div
+                        class="kp-media-source-switch"
+                        role="group"
+                        aria-label="Источник изображения"
+                    >
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-pink active"
+                            id="mediaSourceFile"
+                            aria-pressed="true"
+                        >
+                            Загрузить файл
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            id="mediaSourceUrl"
+                            aria-pressed="false"
+                        >
+                            Использовать ссылку
+                        </button>
+                    </div>
+
+                    <div id="mediaFileFields">
+
+                    <div class="cat-field">
+
+                        {{ form.photo.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.photo(
+                            class="form-control",
+                            accept=".jpg,.jpeg,.png,.webp,.gif,image/*"
+                        ) }}
+
+                        {% for error in form.photo.errors %}
+                        <div class="cat-error">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+
+                        <div class="form-text">
+                            JPG, JPEG, PNG, WebP или GIF.
+                            Максимум 10 МБ.
+                        </div>
+
+                    </div>
+
+                    </div>
+
+                    <div
+                        id="mediaUrlFields"
+                        hidden
+                    >
+
+                    <div class="cat-field">
+
+                        {{ form.gif_url.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.gif_url(
+                            class="form-control",
+                            placeholder="https://..."
+                        ) }}
+
+                        {% for error in form.gif_url.errors %}
+                        <div class="cat-error">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+
+                        <div class="form-text">
+                            Вставь прямую ссылку на изображение или GIF.
+                        </div>
+
+                    </div>
+
+                    </div>
+
+
+                    <div
+                        class="kp-media-preview"
+                        id="mediaPreviewBox"
+                        hidden
+                    >
+                        <div class="kp-media-preview-label">
+                            Предпросмотр нового изображения
+                        </div>
+
+                        <img
+                            id="mediaPreview"
+                            alt="Предпросмотр выбранного изображения"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="cat-actions kp-cat-sticky-actions"
+                >
+
+                    {{ form.submit(
+                        class="btn btn-pink flex-grow-1"
+                    ) }}
+
+
+                    {% if cat %}
+
+                    <a
+                        href="{{ url_for(
+                            'cat_details',
+                            cat_id=cat.id
+                        ) }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Отмена
+                    </a>
+
+                    {% else %}
+
+                    <a
+                        href="{{ url_for('cats') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Отмена
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+            </form>
+
+
+            {% if cat and current_user.role == 'admin' %}
+
+            <hr class="my-4">
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'delete_cat',
+                    cat_id=cat.id
+                ) }}"
+                onsubmit="return confirm('Удалить карточку котика? Карточки с историей заявок или комментариев удалить нельзя.');"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <button
+                    type="submit"
+                    class="btn btn-outline-danger w-100"
+                >
+                    🗑️ Удалить котика
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+(function () {
+
+    const status = document.getElementById(
+        "catStatus"
+    );
+
+    const adoptionBox = document.getElementById(
+        "adoptionDateBox"
+    );
+
+    if (
+        !status
+        ||
+        !adoptionBox
+    ) {
+        return;
+    }
+
+    function updateAdoptionDate() {
+
+        const adopted = (
+            status.value
+            ===
+            "Усыновлён"
+        );
+
+        adoptionBox.style.opacity = (
+            adopted
+            ?
+            "1"
+            :
+            ".55"
+        );
+
+    }
+
+    status.addEventListener(
+        "change",
+        updateAdoptionDate
+    );
+
+    updateAdoptionDate();
+
+})();
+
+</script>
+
+{% endblock %}

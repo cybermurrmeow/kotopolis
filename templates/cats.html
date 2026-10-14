@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block title %}Наши котики · Котополис{% endblock %}
+
+{% block content %}
+{% set fav_ids = favorite_cat_ids|default(favorite_ids|default([])) %}
+
+<div class="kp-catalog-page kp-quiet-catalog">
+    <section class="kp-compatibility-card kp-picker" aria-labelledby="catalog-title">
+        <div class="kp-quiet-kicker">Быстрый подбор</div>
+        <h1 id="catalog-title">Кто подойдёт именно тебе?</h1>
+        <p class="kp-compatibility-lead">
+            Выбери важные условия, и каталог покажет подходящих котиков.
+        </p>
+
+        <button
+            type="button"
+            class="kp-picker-mobile-toggle"
+            id="pickerMobileToggle"
+            aria-controls="compatibilityFilters"
+            aria-expanded="true"
+        >
+            <span>Настроить подбор</span>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+
+        <div id="compatibilityFilters" class="kp-picker-groups">
+            <fieldset class="kp-picker-group">
+                <legend>Дом</legend>
+                <div class="kp-picker-options">
+                    <button type="button" class="kp-compatibility-chip" data-group="home" data-value="kids" aria-pressed="false"><span>Есть дети</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="home" data-value="cats" aria-pressed="false"><span>Есть кошка</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="home" data-value="dogs" aria-pressed="false"><span>Есть собака</span><span class="kp-facet-count">…</span></button>
+                </div>
+            </fieldset>
+            <fieldset class="kp-picker-group">
+                <legend>Ритм</legend>
+                <div class="kp-picker-options">
+                    <button type="button" class="kp-compatibility-chip" data-group="activity" data-value="low" aria-pressed="false"><span>Спокойный</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="activity" data-value="medium" aria-pressed="false"><span>Умеренный</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="activity" data-value="high" aria-pressed="false"><span>Активный</span><span class="kp-facet-count">…</span></button>
+                </div>
+            </fieldset>
+            <fieldset class="kp-picker-group">
+                <legend>Общение</legend>
+                <div class="kp-picker-options">
+                    <button type="button" class="kp-compatibility-chip" data-group="vocal" data-value="silent" aria-pressed="false"><span>Тихий</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="vocal" data-value="talkative" aria-pressed="false"><span>Разговорчивый</span><span class="kp-facet-count">…</span></button>
+                </div>
+            </fieldset>
+            <fieldset class="kp-picker-group">
+                <legend>Возраст</legend>
+                <div class="kp-picker-options">
+                    <button type="button" class="kp-compatibility-chip" data-group="age" data-value="0-2" aria-pressed="false"><span>0-2 года</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="age" data-value="3-5" aria-pressed="false"><span>3-5 лет</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="age" data-value="6+" aria-pressed="false"><span>6+ лет</span><span class="kp-facet-count">…</span></button>
+                </div>
+            </fieldset>
+        </div>
+        <p class="kp-picker-hint">
+            Можно отметить детей и других животных.
+            В остальных разделах выбери один вариант.
+        </p>
+        <noscript><p class="kp-picker-hint">Для быстрого подбора включи JavaScript. Поиск и обычные фильтры доступны ниже.</p></noscript>
+    </section>
+
+    <section class="kp-catalog-controls kp-quiet-controls" aria-label="Поиск котиков">
+        <form method="GET" action="{{ url_for('cats') }}" id="catalogFilterForm">
+
+            {# Сохраняем серверные фильтры при поиске и quick-status #}
+            <input type="hidden" id="statusFilter" name="status" value="{{ status|default('') }}">
+            <input type="hidden" id="genderFilter" name="gender" value="{{ gender|default('') }}">
+            <input type="hidden" id="moodFilter" name="mood" value="{{ mood|default('') }}">
+            <input type="hidden" id="personalityFilter" name="personality" value="{{ personality|default('') }}">
+            <input type="hidden" name="activity_level" value="{{ activity_level|default('') }}">
+            <input type="hidden" name="vocal" value="{{ vocal|default('') }}">
+            <input type="hidden" name="sort" value="{{ sort|default('name') }}">
+            <div class="kp-search-row">
+
+                <div class="kp-search-box">
+
+                    <i
+                        class="fas fa-search kp-search-icon"
+                        aria-hidden="true"
+                    ></i>
+
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ search|default('') }}"
+                        placeholder="Имя или порода..."
+                        aria-label="Поиск котиков"
+                        autocomplete="off"
+                        enterkeyhint="search"
+                    >
+
+                    {% if search %}
+
+                    <a
+                        href="{{ url_for('cats', status=status, gender=gender, mood=mood, personality=personality, activity_level=activity_level, vocal=vocal, sort=sort) }}"
+                        class="kp-search-clear"
+                        aria-label="Очистить поиск"
+                        title="Очистить поиск"
+                    >
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-pink kp-search-submit-visible"
+                >
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    Найти
+                </button>
+
+                
+
+            </div>
+
+
+            <section
+                class="kp-advanced-filters"
+                id="advancedFilters"
+                aria-label="Дополнительные фильтры"
+                hidden
+            >
+
+                <div class="kp-filter-grid">
+
+                    <div>
+                        <label
+                            class="form-label"
+                            for="genderFilterVisible"
+                        >
+                            Пол
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="genderFilterVisible"
+                            data-filter-target="genderFilter"
+                            data-current="{{ gender|default('') }}"
+                        >
+                            <option value="">Любой</option>
+                        </select>
+                    </div>
+
+
+                    <div>
+                        <label
+                            class="form-label"
+                            for="moodFilterVisible"
+                        >
+                            Настроение
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="moodFilterVisible"
+                            data-filter-target="moodFilter"
+                            data-current="{{ mood|default('') }}"
+                        >
+                            <option value="">Любое</option>
+                        </select>
+                    </div>
+
+
+                    <div>
+                        <label
+                            class="form-label"
+                            for="personalityFilterVisible"
+                        >
+                            Характер
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="personalityFilterVisible"
+                            data-filter-target="personalityFilter"
+                            data-current="{{ personality|default('') }}"
+                        >
+                            <option value="">Любой</option>
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <div class="kp-advanced-actions">
+
+                    <button
+                        type="submit"
+                        class="btn btn-pink"
+                    >
+                        Применить фильтры
+                    </button>
+
+                    <a
+                        href="{{ url_for('cats') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Сбросить
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <div
+                class="kp-filter-chips"
+                aria-label="Статус котиков"
+            >
+
+                <button
+                    type="button"
+                    class="kp-filter-chip {% if not status %}active{% endif %}"
+                    data-filter-value=""
+                >
+                    Все котики
+                </button>
+
+                <button
+                    type="button"
+                    class="kp-filter-chip {% if status == 'В приюте' %}active{% endif %}"
+                    data-filter-value="В приюте"
+                >
+                    Ищут дом
+                </button>
+
+                <button
+                    type="button"
+                    class="kp-filter-chip {% if status == 'Усыновлён' %}active{% endif %}"
+                    data-filter-value="Усыновлён"
+                >
+                    Уже дома
+                </button>
+
+                <button
+                    type="button"
+                    class="kp-filter-chip {% if status == 'На лечении' %}active{% endif %}"
+                    data-filter-value="На лечении"
+                >
+                    На лечении
+                </button>
+
+            </div>
+
+            
+        </form>
+    </section>
+
+    <section class="kp-catalog-results-head kp-quiet-results-head" aria-labelledby="catalog-results-title">
+        <div>
+            <div class="kp-quiet-kicker">Каталог</div>
+            <h2 id="catalog-results-title" aria-live="polite">
+                {% if cats %}
+                    {{ cats|length }}
+                    {% if cats|length == 1 %}котик{% elif cats|length in [2, 3, 4] %}котика{% else %}котиков{% endif %}
+                {% else %}
+                    Никого не нашли
+                {% endif %}
+            </h2>
+        </div>
+
+        <div class="kp-results-actions">
+
+
+
+
+
+
+
+            {% if search or status or mood or gender or personality or activity_level or vocal %}
+
+            <a
+                href="{{ url_for('cats') }}"
+                class="kp-active-filter-clear"
+            >
+                Очистить фильтры
+            </a>
+
+            {% endif %}
+
+
+            {% if current_user.role == 'admin' %}
+
+            <a
+                href="{{ url_for('add_cat') }}"
+                class="kp-quiet-text-link"
+            >
+                Добавить котика
+            </a>
+
+            {% endif %}
+
+        </div>
+    </section>
+
+    {% if gender or mood or personality %}
+
+    <div
+        class="kp-server-active-filters"
+        aria-label="Активные дополнительные фильтры"
+    >
+
+        {% if gender %}
+        <a
+            href="{{ url_for('cats', search=search, status=status, mood=mood, personality=personality, activity_level=activity_level, vocal=vocal, sort=sort) }}"
+        >
+            Пол: {{ gender }} ×
+        </a>
+        {% endif %}
+
+        {% if mood %}
+        <a
+            href="{{ url_for('cats', search=search, status=status, gender=gender, personality=personality, activity_level=activity_level, vocal=vocal, sort=sort) }}"
+        >
+            Настроение: {{ mood }} ×
+        </a>
+        {% endif %}
+
+        {% if personality %}
+        <a
+            href="{{ url_for('cats', search=search, status=status, gender=gender, mood=mood, activity_level=activity_level, vocal=vocal, sort=sort) }}"
+        >
+            Характер: {{ personality }} ×
+        </a>
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+
+    <div
+        id="compatibilitySelected"
+        class="kp-picker-selected"
+        aria-label="Выбранные условия"
+        hidden
+    ></div>
+    <div id="compatibilityEmpty" class="kp-compatibility-empty" hidden>
+        <strong>Подходящих котиков пока нет</strong>
+        <span>Попробуй убрать одно условие.</span>
+        <button type="button" class="kp-compatibility-reset" data-compat-reset>Сбросить подбор</button>
+    </div>
+
+    {% if cats %}
+    <section class="kp-cat-grid kp-quiet-catalog-grid" id="cats-grid" aria-label="Котики">
+        {% for cat in cats %}
+        <article
+            class="kp-modern-cat-card kp-quiet-catalog-card cat-card"
+            data-cat-id="{{ cat.id }}"
+            data-kids-friendly="{% if cat.kids_friendly %}1{% else %}0{% endif %}"
+            data-cats-friendly="{% if cat.cats_friendly %}1{% else %}0{% endif %}"
+            data-dogs-friendly="{% if cat.dogs_friendly %}1{% else %}0{% endif %}"
+            data-activity="{{ cat.activity_level|default('', true)|lower }}"
+            data-vocal="{{ cat.vocal|default('', true)|lower }}"
+            data-age="{{ cat.age if cat.age is not none else '' }}"
+            data-name="{{ cat.name|lower }}"
+            data-gender="{{ cat.gender|default('', true) }}"
+            data-mood="{{ cat.mood|default('', true) }}"
+            data-personality="{{ cat.personality|default('', true) }}"
+        >
+            <a
+                href="{{ url_for('cat_details', cat_id=cat.id) }}"
+                class="kp-cat-card-link"
+                aria-label="Подробнее о {{ cat.name }}"
+            ></a>
+
+            <div class="kp-cat-media">
+                {% set media = cat_media_sources(cat) %}
+                <img
+                    src="{{ media.poster }}"
+                    data-poster-src="{{ media.poster }}"
+                    data-animated-src="{{ media.animated }}"
+                    data-fallback="{{ media.original }}"
+                    alt="{{ cat.name }}"
+                    loading="lazy"
+                    class="kp-cat-image kp-media-fallback"
+                >
+                <span class="kp-cat-status">
+                    {% if cat.status == 'В приюте' %}
+                        Ищет дом
+                    {% elif cat.status == 'Усыновлён' %}
+                        Уже дома
+                    {% else %}
+                        {{ cat.status }}
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if current_user.is_authenticated %}
+                {% if cat.status != 'Усыновлён' %}
+                <form method="POST" action="{{ url_for('toggle_favorite', cat_id=cat.id) }}" class="kp-heart-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button
+                        type="submit"
+                        class="kp-heart-button {% if cat.id in fav_ids %}active{% endif %}"
+                        aria-label="{% if cat.id in fav_ids %}Удалить {{ cat.name }} из избранного{% else %}Добавить {{ cat.name }} в избранное{% endif %}"
+                        title="{% if cat.id in fav_ids %}В избранном{% else %}Добавить в избранное{% endif %}"
+                    ><i class="{% if cat.id in fav_ids %}fas{% else %}far{% endif %} fa-heart" aria-hidden="true"></i></button>
+                </form>
+                {% else %}
+                <span class="kp-heart-button kp-home-indicator" role="img" aria-label="{{ cat.name }} уже дома" title="Этот котик уже дома">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                </span>
+                {% endif %}
+            {% endif %}
+
+            <div class="kp-cat-card-body">
+                <h3>{{ cat.name }}</h3>
+                <p class="kp-quiet-cat-facts">
+                    {% if cat.age is not none %}
+                        {{ cat.age }} {% if cat.age == 1 %}год{% elif cat.age in [2, 3, 4] %}года{% else %}лет{% endif %}
+                    {% endif %}
+                    {% if cat.age is not none and cat.gender %}
+                        <span aria-hidden="true">·</span>
+                    {% endif %}
+
+                    {% if cat.gender %}
+                        {{ cat.gender }}
+                    {% endif %}
+
+                    {% if (cat.age is not none or cat.gender) and cat.breed %}
+                        <span aria-hidden="true">·</span>
+                    {% endif %}
+
+                    {% if cat.breed %}
+                        {{ cat.breed }}
+                    {% endif %}
+                </p>
+                <p class="kp-cat-one-liner">
+                    {{ cat.personality or cat.mood or 'Особенный котик со своим характером' }}
+                </p>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+    {% else %}
+    <section class="kp-catalog-empty">
+        <div class="kp-empty-cat"><i class="fas fa-cat" aria-hidden="true"></i></div>
+        <div class="kp-quiet-kicker">Ничего не нашли</div>
+        <h2>Кажется, котики спрятались</h2>
+        <p>Попробуй убрать часть фильтров или изменить запрос.</p>
+        <a href="{{ url_for('cats') }}" class="btn btn-pink">Показать всех</a>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/catalog-v2.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/catalog-compatibility.js', v='20261003-2') }}" defer></script>
+{% endblock %}

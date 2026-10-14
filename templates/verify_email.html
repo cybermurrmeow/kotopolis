@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Подтверждение почты · Котополис{% endblock %}
+{% block content %}
+{% set address = email|default('', true) %}
+{% set email_parts = address.split('@') %}
+{% set safe_email = masked_email|default((email_parts[0][:1] ~ '***@' ~ email_parts[1]) if email_parts|length == 2 else 'твою почту', true) %}
+<section class="kp-auth3 kp-auth3-verify" aria-labelledby="auth-title">
+    <aside class="kp-auth3-scene" aria-label="Котополис">
+        <span class="kp-auth3-brand">Котополис</span>
+        <div class="kp-auth3-scene-copy">
+            <h2>Один маленький <br>шаг до знакомства.</h2>
+            <p>Подтвердим почту, чтобы важные новости находили тебя.</p>
+        </div>
+        <svg class="kp-auth3-cat" viewBox="0 0 360 230" fill="none" aria-hidden="true">
+            <path d="M47 188h267M84 180c-18-5-26-19-22-34 3-11 14-16 23-11M100 181c-8-20-4-43 12-59l-3-37 30 15c17-8 38-8 54 0l30-15-4 37c13 12 21 28 23 46 23-25 65-18 72 7 6 21-17 28-35 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M143 128h6m33 0h6m-24 13 5 4 5-4m-49 17-29-6m28 16-30 5m97-15 29-6m-28 16 30 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="kp-auth3-scene-note">Тихое знакомство. Настоящая привязанность.</span>
+    </aside>
+    <div class="kp-auth3-panel">
+        <div class="kp-auth3-form-head">
+            <span class="kp-auth3-eyebrow">Почта почти подтверждена</span>
+            <h1 id="auth-title">Проверим почту</h1>
+            <p>Введи 6 цифр из письма.<span class="kp-auth3-email">{{ safe_email }}</span></p>
+        </div>
+        <div data-auth-messages class="kp-auth3-messages" aria-live="polite"></div>
+        <form method="POST" novalidate data-auth-form="verify">
+            {% if form is defined %}{{ form.hidden_tag() }}{% else %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+            <label class="kp-auth3-code-label" for="email-code">Код подтверждения</label>
+            {% if form is defined and form.code is defined %}
+            {{ form.code(id='email-code', class_='kp-auth3-input', autocomplete='one-time-code', inputmode='numeric', maxlength=6, aria_describedby='email-code-error', **{'data-auth-code': ''}) }}
+            {% else %}
+            <input id="email-code" name="code" class="kp-auth3-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="email-code-error" data-auth-code>
+            {% endif %}
+            <div class="kp-auth3-code" role="group" aria-label="Шестизначный код">
+                {% for index in range(6) %}
+                <input type="text" class="kp-auth3-digit" inputmode="numeric" autocomplete="{{ 'one-time-code' if index == 0 else 'off' }}" aria-label="Цифра {{ index + 1 }} из 6" aria-describedby="email-code-error" data-auth-digit hidden>
+                {% endfor %}
+            </div>
+            <div id="email-code-error" class="kp-auth3-error" data-auth-code-error aria-live="polite">{% if error %}<p>{{ error }}</p>{% endif %}{% if form is defined and form.code is defined %}{% for error in form.code.errors %}<p>{{ error }}</p>{% endfor %}{% endif %}</div>
+            {% if attempts_remaining is defined %}<p class="kp-auth3-hint">Осталось попыток: {{ attempts_remaining }}</p>{% endif %}
+            <button class="kp-auth3-submit" type="submit">Подтвердить почту</button>
+        </form>
+        <form class="kp-auth3-resend" method="POST" action="{{ url_for('resend_email_code') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="ticket" value="{{ ticket }}">
+            <span>Письма нет?</span> <button type="submit">Отправить новый код</button>
+        </form>
+        <p class="kp-auth3-small-note">Проверь папку «Спам». Используй код из последнего письма.</p>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js', v='20261003-1') }}" defer></script>{% endblock %}

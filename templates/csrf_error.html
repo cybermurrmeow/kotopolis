@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Форма устарела · Котополис
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div
+        class="card mx-auto"
+        style="max-width: 620px;"
+    >
+
+        <div class="card-body text-center p-4 p-md-5">
+
+            <div
+                class="display-5 mb-3"
+                aria-hidden="true"
+            >
+                🐾
+            </div>
+
+            <h1 class="h3 mb-3">
+                Форма устарела
+            </h1>
+
+            <p class="text-muted mb-4">
+                Страница была открыта слишком давно
+                или защитный токен формы больше
+                недействителен.
+                Обновите страницу и повторите действие.
+            </p>
+
+            {% if reason %}
+            <p class="small text-muted">
+                {{ reason }}
+            </p>
+            {% endif %}
+
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+
+                <button
+                    type="button"
+                    class="btn btn-pink"
+                    onclick="window.history.back();"
+                >
+                    Вернуться назад
+                </button>
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    На главную
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

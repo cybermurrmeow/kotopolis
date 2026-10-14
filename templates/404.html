@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Страница не найдена · Котополис
+{% endblock %}
+
+{% block content %}
+
+<section class="kp-error-page">
+
+    <div
+        class="kp-error-code"
+        aria-hidden="true"
+    >
+        404
+    </div>
+
+    <h1>
+        Страница не найдена
+    </h1>
+
+    <p>
+        Ссылка могла устареть или страница была перемещена.
+    </p>
+
+    <div class="kp-error-actions">
+
+        {% if current_user.is_authenticated %}
+
+        <a
+            href="{{ url_for('cats') }}"
+            class="btn btn-pink"
+        >
+            К котикам
+        </a>
+
+        {% else %}
+
+        <a
+            href="{{ url_for('login') }}"
+            class="btn btn-pink"
+        >
+            На страницу входа
+        </a>
+
+        {% endif %}
+
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            onclick="if (history.length > 1) { history.back(); } else { window.location.href='{{ url_for('index') }}'; }"
+        >
+            Назад
+        </button>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,529 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Заявка на {{ cat.name }} · Котополис
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.adopt-page {
+    max-width: 780px;
+    margin: 1rem auto 3rem;
+}
+
+.adopt-card {
+    border: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(40,25,33,.10);
+}
+
+.adopt-head {
+    padding: 1.8rem 1.4rem;
+    text-align: center;
+}
+
+.adopt-head h1 {
+    font-size: 1.65rem;
+    font-weight: 750;
+    margin: .4rem 0 .25rem;
+}
+
+.adopt-body {
+    padding: 1.7rem;
+}
+
+.adopt-cat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.4rem;
+    border-radius: 16px;
+    background: rgba(255,105,180,.07);
+}
+
+.adopt-cat img {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.adopt-cat-placeholder {
+    width: 74px;
+    height: 74px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: rgba(255,105,180,.12);
+    font-size: 2rem;
+}
+
+.adopt-field {
+    margin-bottom: 1.15rem;
+}
+
+.adopt-field label {
+    font-weight: 650;
+    margin-bottom: .4rem;
+}
+
+.adopt-field .form-control {
+    min-height: 48px;
+    border-radius: 13px;
+}
+
+.adopt-field textarea.form-control {
+    min-height: 105px;
+    resize: vertical;
+}
+
+.adopt-error {
+    color: #c7384f;
+    font-size: .84rem;
+    margin-top: .35rem;
+}
+
+.adopt-help {
+    color: #81747a;
+    font-size: .83rem;
+    margin-top: .35rem;
+}
+
+.adopt-actions {
+    display: flex;
+    gap: .7rem;
+    margin-top: 1.6rem;
+}
+
+.adopt-actions .btn {
+    min-height: 48px;
+    border-radius: 13px;
+    font-weight: 650;
+}
+
+@media (max-width:575.98px) {
+
+    .adopt-card {
+        border-radius: 18px;
+    }
+
+    .adopt-body {
+        padding: 1.15rem;
+    }
+
+    .adopt-actions {
+        flex-direction: column;
+    }
+
+    .adopt-actions .btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="adopt-page">
+
+    <div class="card adopt-card">
+
+        <div class="adopt-head kp-form-head-neutral kp-form-head-compact">
+
+            <h1>
+                Заявка на знакомство
+            </h1>
+
+            <p class="mb-0">
+                Это первый шаг, а не обязательство сразу забрать котика.
+            </p>
+
+        </div>
+
+
+        <div class="adopt-body">
+
+            <div class="adopt-cat">
+
+                {% if cat.photo_path %}
+
+                    {% if cat.photo_path.startswith('http') %}
+
+                    <img
+                        src="{{ cat.photo_path }}"
+                        alt="{{ cat.name }}"
+                    >
+
+                    {% else %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename=cat.photo_path
+                        ) }}"
+                        alt="{{ cat.name }}"
+                    >
+
+                    {% endif %}
+
+                {% else %}
+
+                <div class="adopt-cat-placeholder">
+                    🐱
+                </div>
+
+                {% endif %}
+
+                <div>
+
+                    <div class="fw-bold fs-5">
+                        {{ cat.name }}
+                    </div>
+
+                    <div class="text-muted small">
+
+                        {% if cat.age is not none %}
+                        {{ cat.age }} г.
+                        {% endif %}
+
+                        {% if cat.breed %}
+                        · {{ cat.breed }}
+                        {% endif %}
+
+                    </div>
+
+                    <div class="small mt-1">
+                        Статус: {{ cat.status }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <section
+                class="kp-adopt-process"
+                aria-label="Как проходит знакомство"
+            >
+                <div>
+                    <strong>1</strong>
+                    <span>Оставь заявку</span>
+                </div>
+
+                <div>
+                    <strong>2</strong>
+                    <span>Приют свяжется с тобой</span>
+                </div>
+
+                <div>
+                    <strong>3</strong>
+                    <span>Вы договоритесь о знакомстве</span>
+                </div>
+            </section>
+
+            <p class="kp-required-note">
+                Поля со звёздочкой обязательны.
+                Дополнительный комментарий можно оставить пустым.
+            </p>
+
+            <form
+                method="POST"
+                novalidate
+            >
+
+                {{ form.hidden_tag() }}
+
+
+                <div class="row">
+
+                    <div class="col-md-7">
+
+                        <div class="adopt-field">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.adopter_name.id }}"
+                            >
+                                {{ form.adopter_name.label.text }}
+                                <span
+                                    class="kp-required-mark"
+                                    aria-hidden="true"
+                                >*</span>
+                                <span class="visually-hidden">
+                                    обязательное поле
+                                </span>
+                            </label>
+
+                            {{ form.adopter_name(
+                                class="form-control"
+                            ) }}
+
+                            {% for error in form.adopter_name.errors %}
+                            <div class="adopt-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-5">
+
+                        <div class="adopt-field">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.age.id }}"
+                            >
+                                {{ form.age.label.text }}
+                                <span
+                                    class="kp-required-mark"
+                                    aria-hidden="true"
+                                >*</span>
+                                <span class="visually-hidden">
+                                    обязательное поле
+                                </span>
+                            </label>
+
+                            {{ form.age(
+                                class="form-control",
+                                min="18",
+                                max="80"
+                            ) }}
+
+                            {% for error in form.age.errors %}
+                            <div class="adopt-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <div class="adopt-field">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.phone.id }}"
+                            >
+                                {{ form.phone.label.text }}
+                                <span
+                                    class="kp-required-mark"
+                                    aria-hidden="true"
+                                >*</span>
+                                <span class="visually-hidden">
+                                    обязательное поле
+                                </span>
+                            </label>
+
+                            {{ form.phone(
+                                class="form-control",
+                                placeholder="+7 999 123-45-67"
+                            ) }}
+
+                            {% for error in form.phone.errors %}
+                            <div class="adopt-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="adopt-field">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.email.id }}"
+                            >
+                                {{ form.email.label.text }}
+                                <span
+                                    class="kp-required-mark"
+                                    aria-hidden="true"
+                                >*</span>
+                                <span class="visually-hidden">
+                                    обязательное поле
+                                </span>
+                            </label>
+
+                            {{ form.email(
+                                class="form-control"
+                            ) }}
+
+                            {% for error in form.email.errors %}
+                            <div class="adopt-error">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="adopt-field">
+
+                    {{ form.occupation.label(
+                        class="form-label"
+                    ) }}
+
+                    {{ form.occupation(
+                        class="form-control",
+                        placeholder="Например: студент, разработчик, менеджер"
+                    ) }}
+
+                    {% for error in form.occupation.errors %}
+                    <div class="adopt-error">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="adopt-field">
+
+                    {{ form.housing.label(
+                        class="form-label"
+                    ) }}
+
+                    {{ form.housing(
+                        class="form-control",
+                        placeholder="Квартира, дом, кто проживает вместе..."
+                    ) }}
+
+                    {% for error in form.housing.errors %}
+                    <div class="adopt-error">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="form-check mb-4">
+
+                    {{ form.has_other_pets(
+                        class="form-check-input"
+                    ) }}
+
+                    {{ form.has_other_pets.label(
+                        class="form-check-label"
+                    ) }}
+
+                </div>
+
+
+                <div class="adopt-field">
+
+                    {{ form.experience.label(
+                        class="form-label"
+                    ) }}
+
+                    {{ form.experience(
+                        class="form-control",
+                        rows="4",
+                        placeholder="Расскажите, был ли у вас опыт ухода за животными"
+                    ) }}
+
+                    {% for error in form.experience.errors %}
+                    <div class="adopt-error">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="adopt-field">
+
+                    {{ form.reason.label(
+                        class="form-label"
+                    ) }}
+
+                    {{ form.reason(
+                        class="form-control",
+                        rows="4"
+                    ) }}
+
+                    {% for error in form.reason.errors %}
+                    <div class="adopt-error">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="adopt-field">
+
+                    {{ form.comment.label(
+                        class="form-label"
+                    ) }}
+
+                    {{ form.comment(
+                        class="form-control",
+                        rows="3",
+                        placeholder="Необязательно"
+                    ) }}
+
+                    <div class="adopt-help">
+                        Это поле можно оставить пустым.
+                    </div>
+
+                    {% for error in form.comment.errors %}
+                    <div class="adopt-error">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="adopt-actions">
+
+                    {{ form.submit(
+                        class="btn btn-pink flex-grow-1"
+                    ) }}
+
+                    <a
+                        href="{{ url_for(
+                            'cat_details',
+                            cat_id=cat.id
+                        ) }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Назад
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

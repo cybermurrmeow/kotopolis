@@ -1,0 +1,16 @@
+services:
+  postgres-review:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: kotopolis_review
+      POSTGRES_USER: review
+      POSTGRES_PASSWORD: ${REVIEW_POSTGRES_PASSWORD:?Set a local review password}
+    ports:
+      - "127.0.0.1:55432:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U review -d kotopolis_review"]
+      interval: 3s
+      timeout: 3s
+      retries: 20

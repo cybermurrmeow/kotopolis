@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная · Котополис{% endblock %}
+
+{% block content %}
+<div class="kp-dashboard-v2 kp-quiet-dashboard">
+
+    <section class="kp-quiet-dashboard-hero" aria-labelledby="dashboard-title">
+        <div class="kp-quiet-hero-copy">
+            <div class="kp-quiet-kicker">
+                {% if current_user.role == 'admin' %}
+                    Обзор
+                {% else %}
+                    Главная
+                {% endif %}
+            </div>
+
+            <h1 id="dashboard-title">
+                Котополис сегодня
+            </h1>
+
+            <p class="kp-dashboard-welcome">
+                Рады видеть тебя,
+                <strong>{{ current_user.username }}</strong>.
+                {% if current_user.role == 'admin' %}
+                    Ниже можно быстро перейти к рабочим задачам.
+                {% else %}
+                    Здесь можно познакомиться с котиками, которые всё ещё ждут своего человека.
+                {% endif %}
+            </p>
+            <a href="{{ url_for('cats') }}" class="btn btn-pink kp-quiet-primary">
+                Посмотреть котиков
+            </a>
+        </div>
+
+        <div
+            class="kp-dashboard-spotlight kp-quiet-spotlight"
+            id="dashboardSpotlight"
+            data-count="{{ catalog_home_cats|default([])|length }}"
+        >
+            {% if catalog_home_cats %}
+                <div class="kp-quiet-spotlight-stage">
+                    {% for cat in catalog_home_cats %}
+                    <a
+                        href="{{ url_for('cat_details', cat_id=cat.id) }}"
+                        class="kp-dashboard-spotlight-slide kp-quiet-spotlight-slide {% if loop.first %}active{% endif %}"
+                        data-dashboard-slide
+                        data-index="{{ loop.index0 }}"
+                        aria-label="Подробнее о {{ cat.name }}"
+                        aria-hidden="{% if loop.first %}false{% else %}true{% endif %}"
+                        {% if not loop.first %}tabindex="-1"{% endif %}
+                    >
+                        {% set media = cat_media_sources(cat) %}
+                        <img
+                            src="{{ media.animated }}"
+                            data-poster-src="{{ media.poster }}"
+                            data-animated-src="{{ media.animated }}"
+                            data-fallback="{{ media.original }}"
+                            class="kp-dashboard-spotlight-img kp-dashboard-media-fallback"
+                            alt="{{ cat.name }}"
+                        >
+                        <span class="kp-quiet-spotlight-shade"></span>
+                        <span class="kp-quiet-spotlight-copy">
+                            <small>Ищет дом</small>
+                            <strong>{{ cat.name }}</strong>
+                            <span>{{ cat.personality or cat.breed or 'Познакомься поближе' }}</span>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                {% if catalog_home_cats|length > 1 %}
+                <div class="kp-quiet-slider-controls" aria-label="Навигация по котикам">
+                    <button type="button" id="dashboardPrev" aria-label="Предыдущий котик">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="kp-quiet-slide-number" aria-live="polite">
+                        <span id="dashboardCurrent">1</span> / {{ catalog_home_cats|length }}
+                    </span>
+                    <button type="button" id="dashboardNext" aria-label="Следующий котик">
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+</div>
+                {% endif %}
+            {% else %}
+                <div class="kp-dashboard-no-spotlight">
+                    <i class="fas fa-cat" aria-hidden="true"></i>
+                    <strong>Все котики уже дома</strong>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="kp-quiet-stats" aria-label="Статистика Котополиса">
+        <a href="{{ url_for('cats') }}"><strong>{{ stats.total|default(cats|length if cats is defined else 0) }}</strong> котиков</a>
+        <span aria-hidden="true">·</span>
+        <a href="{{ url_for('cats', status='В приюте') }}"><strong>{{ stats.in_shelter|default(catalog_home_cats|default([])|length) }}</strong> ищут дом</a>
+        <span aria-hidden="true">·</span>
+        <a href="{{ url_for('cats', status='Усыновлён') }}"><strong>{{ stats.adopted|default(0) }}</strong> уже дома</a>
+        <span aria-hidden="true">·</span>
+        <span>
+            <strong>{% if stats.vaccination_rate is not none %}{{ stats.vaccination_rate|round|int }}%{% else %}-{% endif %}</strong>
+            вакцинированы
+        </span>
+    </section>
+
+    {% if daily_story %}
+    <section
+        class="kp-daily-story"
+        aria-labelledby="daily-story-title"
+    >
+        <a
+            href="{{ url_for('cat_details', cat_id=daily_story.cat.id) }}"
+            class="kp-story-card"
+            aria-label="Открыть профиль {{ daily_story.cat.name }}"
+        >
+            <div class="kp-story-photo">
+
+                {% if daily_story.photo_url %}
+                <img
+                    src="{{ daily_story.photo_url }}"
+                    alt="{{ daily_story.cat.name }}"
+                >
+                {% else %}
+                <div class="kp-story-photo-empty">
+                    <i class="fas fa-cat"></i>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="kp-story-body">
+
+                <div class="kp-story-eyebrow">
+                    История дня
+                </div>
+
+                <h2 id="daily-story-title">
+                    {{ daily_story.cat.name }}
+                </h2>
+
+                <p class="kp-story-text">
+                    {{ daily_story.text }}
+                </p>
+
+                {% if daily_story.chips %}
+                <div class="kp-story-tags">
+                    {% for chip in daily_story.chips %}
+                    <span>
+                        {{ chip }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="kp-story-bottom">
+                    <span>
+                        Каждый день новый герой
+                    </span>
+
+                    <span
+                        class="kp-story-arrow"
+                        aria-hidden="true"
+                    >
+                        →
+                    </span>
+                </div>
+
+            </div>
+        </a>
+    </section>
+    {% endif %}
+
+
+    
+
+    {% if current_user.role == 'admin' %}
+    <aside class="kp-quiet-staff" aria-labelledby="staff-summary-title">
+        <div>
+            <div class="kp-quiet-kicker">Для команды</div>
+            <h2 id="staff-summary-title">Состояние котиков</h2>
+            <p>
+                <strong>{{ stats.treatment|default(0) }}</strong> на лечении
+                <span aria-hidden="true">·</span>
+                <strong>{{ stats.quarantine|default(0) }}</strong> в карантине
+                <span aria-hidden="true">·</span>
+                <strong>{{ need_vacc|default([])|length }}</strong> требуют внимания
+            </p>
+        </div>
+        <a href="{{ url_for('cats', status='На лечении') }}" class="kp-quiet-text-link">
+            Открыть список
+        </a>
+    </aside>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard-v2.js') }}" defer></script>
+{% endblock %}

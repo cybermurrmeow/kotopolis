@@ -1,0 +1,815 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ cat.name }} · Котополис
+{% endblock %}
+
+{% block content %}
+
+{% set fav_ids = [cat.id] if is_favorite else [] %}
+
+<div class="kp-profile-page">
+
+    <a
+        href="{{ url_for('cats') }}"
+        class="kp-profile-back"
+    >
+        <i class="fas fa-arrow-left"></i>
+        Все котики
+    </a>
+
+
+    
+
+
+
+    <section class="kp-profile-hero">
+
+        <div class="kp-profile-media-column">
+
+            <div class="kp-profile-media">
+
+                {% if cat.photo_path %}
+
+                <img
+                    src="{% if cat.photo_path.startswith('http://') or cat.photo_path.startswith('https://') %}{{ cat.photo_path }}{% else %}{{ url_for('static', filename=cat.photo_path) }}{% endif %}"
+                    alt="{{ cat.name }}"
+                    class="kp-profile-image"
+                >
+
+                {% else %}
+
+                <div class="kp-profile-no-image">
+                    <i class="fas fa-cat"></i>
+                </div>
+
+                {% endif %}
+
+
+                <div class="kp-profile-media-gradient"></div>
+
+
+                <div class="kp-profile-status">
+
+                    {% if cat.status == 'В приюте' %}
+                    <span class="kp-status-dot home"></span>
+
+                    {% elif cat.status == 'Усыновлён' %}
+                    <span class="kp-status-dot adopted"></span>
+
+                    {% elif cat.status == 'На лечении' %}
+                    <span class="kp-status-dot care"></span>
+
+                    {% else %}
+                    <span class="kp-status-dot quarantine"></span>
+                    {% endif %}
+
+                    {{ cat.status }}
+
+                </div>
+
+
+                {% if current_user.is_authenticated and (cat.status != 'Усыновлён' or is_favorite) %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('toggle_favorite', cat_id=cat.id) }}"
+                    class="kp-profile-heart-form"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="kp-profile-heart {% if cat.id in fav_ids %}active{% endif %}"
+                        aria-label="{% if cat.id in fav_ids %}Удалить из избранного{% else %}Добавить в избранное{% endif %}"
+                    >
+                        <i class="{% if cat.id in fav_ids %}fas{% else %}far{% endif %} fa-heart"></i>
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="kp-profile-intro">
+
+            <div class="kp-eyebrow">
+                <span class="kp-eyebrow-dot"></span>
+                Профиль котика
+            </div>
+
+
+            <div class="kp-profile-title-row">
+
+                <div>
+
+                    <h1>
+                        {{ cat.name }}
+                    </h1>
+
+                    {% if cat.nickname %}
+
+                    <div class="kp-profile-nickname">
+                        {{ cat.nickname }}
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if cat.gender %}
+
+                <div class="kp-profile-gender">
+                    {% if cat.gender == 'Мальчик' %}
+                        ♂
+                    {% elif cat.gender == 'Девочка' %}
+                        ♀
+                    {% endif %}
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if cat.description %}
+
+            <p class="kp-profile-lead">
+                {{ cat.description }}
+            </p>
+
+            {% endif %}
+
+
+            <div class="kp-profile-quick">
+
+                {% if cat.age is not none %}
+
+                <div class="kp-profile-quick-item">
+
+                    <span>
+                        Возраст
+                    </span>
+
+                    <strong>
+                        {{ cat.age }}
+                        {% if cat.age == 1 %}
+                            год
+                        {% elif cat.age in [2, 3, 4] %}
+                            года
+                        {% else %}
+                            лет
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if cat.breed %}
+
+                <div class="kp-profile-quick-item">
+
+                    <span>
+                        Порода
+                    </span>
+
+                    <strong>
+                        {{ cat.breed }}
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if cat.weight %}
+
+                <div class="kp-profile-quick-item">
+
+                    <span>
+                        Вес
+                    </span>
+
+                    <strong>
+                        {{ cat.weight }} кг
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if cat.days_in_shelter is defined %}
+
+                <div class="kp-profile-quick-item">
+
+                    <span>
+                        Ждёт дом
+                    </span>
+
+                    <strong>
+                        {{ cat.days_in_shelter }} дн.
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="kp-profile-actions">
+
+                {% if cat.status == 'В приюте' %}
+
+                    {% if adoption_request %}
+
+                    <div class="kp-request-exists">
+
+                        <i class="fas fa-check-circle"></i>
+
+                        <div>
+                            <strong>
+                                Заявка уже отправлена
+                            </strong>
+
+                            <span>
+                                Статус: {{ adoption_request.status }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <a
+                        href="{{ url_for('create_adoption_request', cat_id=cat.id) }}"
+                        class="btn btn-pink kp-profile-adopt"
+                    >
+                        <i class="fas fa-heart"></i>
+                        Оставить заявку на знакомство
+                    </a>
+
+                    <p class="kp-profile-adopt-note">
+                        Сотрудник приюта свяжется с тобой.
+                        Заявка не обязывает сразу забирать котика.
+                    </p>
+
+                    {% endif %}
+
+                {% elif cat.status == 'Усыновлён' %}
+
+                <div class="kp-profile-home-note">
+                    <i class="fas fa-home"></i>
+                    {{ cat.name }} уже нашёл свой дом
+                </div>
+
+                {% else %}
+
+                <div class="kp-profile-care-note">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    Сейчас {{ cat.name }} не принимает заявки
+                </div>
+
+                {% endif %}
+
+
+                {% if current_user.role == 'admin' %}
+
+                <a
+                    href="{{ url_for('edit_cat', cat_id=cat.id) }}"
+                    class="btn kp-soft-btn"
+                >
+                    <i class="fas fa-pen"></i>
+                    Редактировать
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    
+
+
+
+    <section class="kp-profile-section">
+
+        <div class="kp-section-heading">
+
+            <div>
+                <div class="kp-result-kicker">
+                    Личность
+                </div>
+
+                <h2>
+                    Какой {{ cat.name }}?
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="kp-personality-grid">
+
+            <div class="kp-personality-main">
+
+                <div class="kp-personality-icon">
+                    <i class="fas fa-sparkles"></i>
+                </div>
+
+                <span>
+                    Характер
+                </span>
+
+                <strong>
+                    {{ cat.personality or 'Пока знакомимся' }}
+                </strong>
+
+            </div>
+
+
+            <div class="kp-personality-card">
+
+                <span>
+                    Настроение
+                </span>
+
+                <strong>
+                    {{ cat.mood or 'Не указано' }}
+                </strong>
+
+            </div>
+
+
+            <div class="kp-personality-card">
+
+                <span>
+                    Активность
+                </span>
+
+                <strong>
+                    {{ cat.activity_level or 'Не указана' }}
+                </strong>
+
+            </div>
+
+
+            <div class="kp-personality-card">
+
+                <span>
+                    Голос
+                </span>
+
+                <strong>
+                    {{ cat.vocal or 'Не указано' }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    
+
+
+
+    <section class="kp-profile-section">
+
+        <div class="kp-section-heading">
+
+            <div>
+
+                <div class="kp-result-kicker">
+                    Совместимость
+                </div>
+
+                <h2>
+                    Кому подойдёт
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="kp-compat-grid">
+
+            <div class="kp-compat-card">
+
+                <div class="kp-compat-icon">
+                    <i class="fas fa-child"></i>
+                </div>
+
+                <span>
+                    Дети
+                </span>
+
+                <strong>
+                    {% if cat.kids_friendly is sameas true %}
+                        Отлично
+                    {% elif cat.kids_friendly is sameas false %}
+                        Лучше без детей
+                    {% else %}
+                        Неизвестно
+                    {% endif %}
+                </strong>
+
+            </div>
+
+
+            <div class="kp-compat-card">
+
+                <div class="kp-compat-icon">
+                    <i class="fas fa-cat"></i>
+                </div>
+
+                <span>
+                    Другие коты
+                </span>
+
+                <strong>
+                    {% if cat.cats_friendly is sameas true %}
+                        Дружит
+                    {% elif cat.cats_friendly is sameas false %}
+                        Лучше один
+                    {% else %}
+                        Неизвестно
+                    {% endif %}
+                </strong>
+
+            </div>
+
+
+            <div class="kp-compat-card">
+
+                <div class="kp-compat-icon">
+                    <i class="fas fa-dog"></i>
+                </div>
+
+                <span>
+                    Собаки
+                </span>
+
+                <strong>
+                    {% if cat.dogs_friendly is sameas true %}
+                        Уживается
+                    {% elif cat.dogs_friendly is sameas false %}
+                        Лучше без собак
+                    {% else %}
+                        Неизвестно
+                    {% endif %}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    
+
+
+
+    <section class="kp-profile-section">
+
+        <div class="kp-section-heading">
+
+            <div>
+
+                <div class="kp-result-kicker">
+                    Маленькие привычки
+                </div>
+
+                <h2>
+                    То, что делает его собой
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="kp-lifestyle-grid">
+
+            {% if cat.favorite_toy %}
+
+            <div class="kp-life-card">
+                <i class="fas fa-bone"></i>
+                <span>Любимая игрушка</span>
+                <strong>{{ cat.favorite_toy }}</strong>
+            </div>
+
+            {% endif %}
+
+
+            {% if cat.favorite_place %}
+
+            <div class="kp-life-card">
+                <i class="fas fa-couch"></i>
+                <span>Любимое место</span>
+                <strong>{{ cat.favorite_place }}</strong>
+            </div>
+
+            {% endif %}
+
+
+            {% if cat.food_preferences %}
+
+            <div class="kp-life-card">
+                <i class="fas fa-bowl-food"></i>
+                <span>Любит поесть</span>
+                <strong>{{ cat.food_preferences }}</strong>
+            </div>
+
+            {% endif %}
+
+
+            {% if cat.color %}
+
+            <div class="kp-life-card">
+                <i class="fas fa-palette"></i>
+                <span>Окрас</span>
+                <strong>{{ cat.color }}</strong>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    
+
+
+
+    {% if cat.story %}
+
+    <section class="kp-story-section">
+
+        <div class="kp-story-mark">
+            “
+        </div>
+
+        <div>
+
+            <div class="kp-result-kicker">
+                История
+            </div>
+
+            <h2>
+                История {{ cat.name }}
+            </h2>
+
+            <p>
+                {{ cat.story }}
+            </p>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+    
+
+
+
+    <section class="kp-profile-section">
+
+        <div class="kp-section-heading">
+
+            <div>
+
+                <div class="kp-result-kicker">
+                    Забота
+                </div>
+
+                <h2>
+                    Здоровье
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="kp-health-layout">
+
+            <div class="kp-health-summary">
+
+                <div class="kp-health-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Текущее состояние
+                    </span>
+
+                    <strong>
+                        {{ cat.health or 'Данные не указаны' }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="kp-health-cards">
+
+                <div class="kp-health-card">
+
+                    <span>
+                        Вакцинация
+                    </span>
+
+                    <strong>
+                        {% if cat.is_vaccinated %}
+                            <i class="fas fa-check-circle"></i>
+                            Сделана
+                        {% else %}
+                            <i class="fas fa-clock"></i>
+                            Требуется
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+
+                <div class="kp-health-card">
+
+                    <span>
+                        Стерилизация
+                    </span>
+
+                    <strong>
+                        {% if cat.is_sterilized %}
+                            <i class="fas fa-check-circle"></i>
+                            Да
+                        {% else %}
+                            <i class="fas fa-minus-circle"></i>
+                            Нет
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+
+                <div class="kp-health-card">
+
+                    <span>
+                        Последняя прививка
+                    </span>
+
+                    <strong>
+                        {% if cat.last_vacc_date %}
+                            {{ cat.last_vacc_date.strftime('%d.%m.%Y') }}
+                        {% else %}
+                            Нет данных
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+
+                <div class="kp-health-card">
+
+                    <span>
+                        Следующая прививка
+                    </span>
+
+                    <strong>
+                        {% if cat.next_vacc_date %}
+                            {{ cat.next_vacc_date.strftime('%d.%m.%Y') }}
+                        {% else %}
+                            Нет данных
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    
+
+
+
+    {% if cat.adoption_recommendation %}
+
+    <section class="kp-recommend-section">
+
+        <div class="kp-recommend-icon">
+            <i class="fas fa-house-heart"></i>
+        </div>
+
+        <div>
+
+            <div class="kp-result-kicker">
+                Будущий дом
+            </div>
+
+            <h2>
+                Где {{ cat.name }} будет счастлив
+            </h2>
+
+            <p>
+                {{ cat.adoption_recommendation }}
+            </p>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+    
+
+
+
+    <section class="kp-profile-final">
+
+        <div>
+
+            <div class="kp-result-kicker">
+                Может быть, это мэтч?
+            </div>
+
+            <h2>
+                {{ cat.name }} уже рассказал о себе
+            </h2>
+
+            <p>
+                Осталось решить, хотите ли вы познакомиться вживую.
+            </p>
+
+        </div>
+
+
+        <div class="kp-profile-final-actions">
+
+            {% if cat.status == 'В приюте' and not adoption_request %}
+
+            <a
+                href="{{ url_for('create_adoption_request', cat_id=cat.id) }}"
+                class="btn btn-pink"
+            >
+                <i class="fas fa-heart"></i>
+                Подать заявку
+            </a>
+
+            {% endif %}
+
+
+            <a
+                href="{{ url_for('cats') }}"
+                class="btn kp-soft-btn"
+            >
+                Смотреть других
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script
+    src="{{ url_for('static', filename='js/cat-profile-v2.js') }}"
+    defer
+></script>
+
+{% endblock %}

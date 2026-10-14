@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация · Котополис{% endblock %}
+{% block content %}
+<section class="kp-auth3 kp-auth3-register" aria-labelledby="auth-title">
+    <aside class="kp-auth3-scene" aria-label="Котополис">
+        <span class="kp-auth3-brand">Котополис</span>
+        <div class="kp-auth3-scene-copy">
+            <h2>Знакомство <br>начинается здесь.</h2>
+            <p>У каждого котика свой характер. У тебя будет время узнать его.</p>
+        </div>
+        <svg class="kp-auth3-cat" viewBox="0 0 360 230" fill="none" aria-hidden="true">
+            <path d="M47 188h267M84 180c-18-5-26-19-22-34 3-11 14-16 23-11M100 181c-8-20-4-43 12-59l-3-37 30 15c17-8 38-8 54 0l30-15-4 37c13 12 21 28 23 46 23-25 65-18 72 7 6 21-17 28-35 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M143 128h6m33 0h6m-24 13 5 4 5-4m-49 17-29-6m28 16-30 5m97-15 29-6m-28 16 30 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <ul class="kp-auth3-benefits"><li>Сохраняй котиков, которые тебе близки</li><li>Следи за своими заявками</li><li>Возвращайся к избранному</li></ul>
+    </aside>
+    <div class="kp-auth3-panel">
+        <div class="kp-auth3-form-head"><span class="kp-auth3-eyebrow">Первое знакомство</span><h1 id="auth-title">Создать аккаунт</h1><p>Сохрани тех, с кем хочется встретиться.</p></div>
+        <div data-auth-messages class="kp-auth3-messages" aria-live="polite"></div>
+        <form method="POST" novalidate data-auth-form="register">
+            {{ form.hidden_tag() }}
+            <div class="kp-auth3-field">
+                <label for="register-username">Логин</label>
+
+                {{ form.username(id='register-username', class_='kp-auth3-input' + (' is-invalid' if form.username.errors else ''), autocomplete='username', autocapitalize='none', spellcheck='false', aria_describedby='register-username-error register-username-hint', aria_invalid='true' if form.username.errors else 'false', placeholder='Например, alina') }}
+
+                <p class="kp-auth3-hint" id="register-username-hint">3-30 символов: буквы, цифры, _ или -.</p>
+                <div class="kp-auth3-error" id="register-username-error">{% for error in form.username.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <div class="kp-auth3-field">
+                <label for="register-email">Email</label>
+
+                {{ form.email(id='register-email', class_='kp-auth3-input' + (' is-invalid' if form.email.errors else ''), autocomplete='email', autocapitalize='none', spellcheck='false', type='email', inputmode='email', aria_describedby='register-email-error', aria_invalid='true' if form.email.errors else 'false', placeholder='name@example.com') }}
+
+
+                <div class="kp-auth3-error" id="register-email-error">{% for error in form.email.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <div class="kp-auth3-field">
+                <label for="register-password">Пароль</label>
+                <div class="kp-auth3-password">
+                {{ form.password(id='register-password', class_='kp-auth3-input' + (' is-invalid' if form.password.errors else ''), autocomplete='new-password', aria_describedby='register-password-error', aria_invalid='true' if form.password.errors else 'false', placeholder='Придумай пароль') }}
+                    <button type="button" class="kp-auth3-password-toggle" data-auth-password="register-password" aria-controls="register-password" aria-label="Показать пароль" aria-pressed="false">Показать</button>
+                </div>
+
+                <div class="kp-auth3-error" id="register-password-error">{% for error in form.password.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <div class="kp-auth3-strength" aria-live="polite">
+                <p class="kp-auth3-strength-title">Пароль: <strong data-auth-strength>ещё не введён</strong></p>
+                <ul class="kp-auth3-requirements"><li data-auth-rule="length">8+ символов</li><li data-auth-rule="letter">Буква</li><li data-auth-rule="number">Цифра</li></ul>
+            </div>
+            <div class="kp-auth3-field">
+                <label for="register-confirm-password">Повтори пароль</label>
+                <div class="kp-auth3-password">
+                {{ form.confirm_password(id='register-confirm-password', class_='kp-auth3-input' + (' is-invalid' if form.confirm_password.errors else ''), autocomplete='new-password', aria_describedby='register-confirm-password-error', aria_invalid='true' if form.confirm_password.errors else 'false', placeholder='Тот же пароль') }}
+                    <button type="button" class="kp-auth3-password-toggle" data-auth-password="register-confirm-password" aria-controls="register-confirm-password" aria-label="Показать пароль" aria-pressed="false">Показать</button>
+                </div>
+
+                <div class="kp-auth3-error" id="register-confirm-password-error">{% for error in form.confirm_password.errors %}<p>{{ error }}</p>{% endfor %}</div>
+            </div>
+            <p class="kp-auth3-match" data-auth-match aria-live="polite"></p>
+            <button class="kp-auth3-submit" type="submit" name="submit">Создать аккаунт</button>
+        </form>
+        <p class="kp-auth3-switch">Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a></p>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js', v='20261003-1') }}" defer></script>{% endblock %}

@@ -1,0 +1,686 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Пользователи · Котополис
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.users-page {
+    max-width: 1180px;
+    margin: 0 auto 3rem;
+}
+
+.users-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.4rem;
+}
+
+.user-card {
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(40,25,33,.08);
+    height: 100%;
+}
+
+.user-card .card-body {
+    padding: 1.35rem;
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255,105,180,.12);
+    font-size: 1.35rem;
+    flex: 0 0 auto;
+}
+
+.user-name {
+    font-weight: 750;
+    font-size: 1.05rem;
+    word-break: break-word;
+}
+
+.user-email {
+    color: #7a6d73;
+    font-size: .88rem;
+    word-break: break-all;
+}
+
+.user-meta {
+    font-size: .85rem;
+    color: #81747a;
+}
+
+.user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    margin-top: 1rem;
+}
+
+.user-actions .btn,
+.user-actions .form-select {
+    min-height: 42px;
+    border-radius: 11px;
+}
+
+.role-user {
+    background: #6c757d;
+}
+
+.role-admin {
+    background: #dc3545;
+}
+
+.confirmed-yes {
+    color: #198754;
+}
+
+.confirmed-no {
+    color: #c18400;
+}
+
+.create-user-box {
+    border: 0;
+    border-radius: 20px;
+}
+
+.create-user-box .form-control,
+.create-user-box .form-select {
+    min-height: 46px;
+    border-radius: 12px;
+}
+
+@media (max-width:575.98px) {
+
+    .users-head {
+        align-items: stretch;
+    }
+
+    .users-head .btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="users-page">
+
+    <div class="users-head">
+
+        <div>
+
+            <h1 class="dashboard-title mb-1">
+                👥 Пользователи
+            </h1>
+
+            <div class="text-muted">
+                Всего аккаунтов: {{ users|length }}
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="btn btn-pink"
+            data-bs-toggle="modal"
+            data-bs-target="#createUserModal"
+        >
+            ➕ Создать пользователя
+        </button>
+
+    </div>
+
+
+    <div
+        class="kp-users-toolbar"
+        aria-label="Поиск и фильтр пользователей"
+    >
+        <div class="kp-users-search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+                type="search"
+                id="usersSearch"
+                class="form-control"
+                placeholder="Логин или email"
+                aria-label="Найти пользователя по логину или email"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="kp-users-role-filter">
+            <label for="usersRoleFilter">
+                Роль
+            </label>
+
+            <select
+                id="usersRoleFilter"
+                class="form-select"
+            >
+                <option value="">
+                    Все роли
+                </option>
+                <option value="user">
+                    Пользователь
+                </option>
+                <option value="admin">
+                    Администратор
+                </option>
+            </select>
+        </div>
+
+        <div
+            id="usersFilterCount"
+            class="kp-users-filter-count"
+            aria-live="polite"
+        >
+            Показано {{ users|length }} из {{ users|length }}
+        </div>
+    </div>
+
+    <div
+        id="usersFilterEmpty"
+        class="kp-users-filter-empty"
+        hidden
+    >
+        <strong>Пользователи не найдены</strong>
+        <span>Измени запрос или сбрось фильтр роли.</span>
+    </div>
+
+    <div class="row g-3" id="usersGrid">
+
+        {% for user in users %}
+
+        <div
+            class="col-12"
+            data-user-entry
+            data-username="{{ user.username|lower }}"
+            data-email="{{ user.email|lower }}"
+            data-role="{{ user.role }}"
+        >
+
+            <div class="card user-card">
+
+                <div class="card-body">
+
+                    <div class="d-flex align-items-start gap-3">
+
+                        <div
+                            class="user-avatar"
+                            aria-hidden="true"
+                        >
+                            <i class="fas fa-user"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <div class="user-name">
+                                {{ user.username }}
+                            </div>
+
+                            <div class="user-email">
+                                {{ user.email }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+
+                        {% set role_class = {
+                            'user': 'role-user',
+                            'admin': 'role-admin'
+                        }.get(
+                            user.role,
+                            'role-user'
+                        ) %}
+
+                        <span class="badge {{ role_class }}">
+                            {% if user.role == 'admin' %}
+                                Администратор
+                            {% else %}
+                                Пользователь
+                            {% endif %}
+                        </span>
+
+
+                        {% if user.email_confirmed %}
+
+                        <span class="badge bg-success">
+                            Почта подтверждена
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-warning text-dark">
+                            Почта не подтверждена
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <details class="user-meta kp-user-details mt-3">
+
+                        <summary>
+                            Дополнительная информация
+                        </summary>
+
+                        <div class="kp-user-details-body">
+
+                            <div>
+                                ID: {{ user.id }}
+                            </div>
+
+                            {% if user.created_at %}
+                            <div>
+                                Создан:
+                                {{ user.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </div>
+                            {% endif %}
+
+                            {% if user.last_login %}
+                            <div>
+                                Последний вход:
+                                {{ user.last_login.strftime('%d.%m.%Y %H:%M') }}
+                            </div>
+                            {% else %}
+                            <div>
+                                Последний вход: ещё не входил
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                    </details>
+
+
+                    <div class="user-actions">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'update_user_role',
+                                user_id=user.id
+                            ) }}"
+                        >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <div class="d-flex gap-2">
+
+                                <select
+                                    name="role"
+                                    class="form-select"
+                                    aria-label="Роль пользователя {{ user.username }}"
+                                    {% if user.id == current_user.id %}
+                                    disabled
+                                    {% endif %}
+                                >
+
+                                    <option
+                                        value="user"
+                                        {% if user.role == 'user' %}
+                                        selected
+                                        {% endif %}
+                                    >
+                                        Пользователь
+                                    </option>
+
+                                    <option
+                                        value="admin"
+                                        {% if user.role == 'admin' %}
+                                        selected
+                                        {% endif %}
+                                    >
+                                        Администратор
+                                    </option>
+
+                                </select>
+
+
+                                {% if user.id != current_user.id %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-pink"
+                                    aria-label="Сохранить роль пользователя {{ user.username }}"
+                                >
+                                    Сохранить роль
+                                </button>
+
+                                {% endif %}
+
+                            </div>
+
+                        </form>
+
+
+                        {% if user.id == current_user.id %}
+
+                        <div class="small text-muted">
+                            Это ваш аккаунт. Его роль и удаление
+                            здесь заблокированы.
+                        </div>
+
+                        {% else %}
+
+                        <details class="kp-danger-actions">
+
+                            <summary>
+                                Другие действия
+                            </summary>
+
+                            <div class="kp-danger-actions-body">
+
+                                <p class="small text-muted mb-2">
+                                    Аккаунт с заявками или комментариями сохраняется в истории. Удаление пустого аккаунта нельзя отменить.
+                                </p>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'delete_user',
+                                        user_id=user.id
+                                    ) }}"
+                                    onsubmit="return confirm('Удалить пользователя? Аккаунты с историей удалить нельзя.');"
+                                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger w-100"
+                                    >
+                                        Удалить пользователя
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<div
+    class="modal fade"
+    id="createUserModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content create-user-box">
+
+            <form
+                method="POST"
+                action="{{ url_for('create_user') }}"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        <i
+                            class="fas fa-user-plus me-2"
+                            aria-hidden="true"
+                        ></i>
+                        Новый пользователь
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Закрыть окно создания пользователя"
+                    ></button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Логин
+                        </label>
+
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control"
+                            minlength="3"
+                            maxlength="30"
+                            required
+                            autocomplete="off"
+                        >
+
+                        <div class="form-text">
+                            3-30 символов. Буквы, цифры,
+                            дефис и нижнее подчёркивание.
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            class="form-control"
+                            maxlength="120"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Один email можно использовать
+                            для нескольких аккаунтов.
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Временный пароль
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            class="form-control"
+                            minlength="8"
+                            maxlength="128"
+                            required
+                            autocomplete="new-password"
+                        >
+
+                        <div class="form-text">
+                            Минимум 8 символов,
+                            хотя бы одна буква и одна цифра.
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-2">
+
+                        <label class="form-label fw-semibold">
+                            Роль
+                        </label>
+
+                        <select
+                            name="role"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="user">
+                                Пользователь
+                            </option>
+
+                            <option value="admin">
+                                Администратор
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="alert alert-light border mt-3 mb-0 small">
+
+                        После создания аккаунта на указанную
+                        почту отправим шестизначный код подтверждения.
+                        Пользователю также стоит сменить временный
+                        пароль после первого входа.
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Отмена
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-pink"
+                    >
+                        Создать
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const search = document.getElementById("usersSearch");
+    const role = document.getElementById("usersRoleFilter");
+    const entries = Array.from(
+        document.querySelectorAll("[data-user-entry]")
+    );
+    const count = document.getElementById("usersFilterCount");
+    const empty = document.getElementById("usersFilterEmpty");
+
+    if (!search || !role || !count || !empty) {
+        return;
+    }
+
+    const total = entries.length;
+
+    function applyUsersFilter() {
+        const query = search.value.trim().toLocaleLowerCase("ru");
+        const roleValue = role.value;
+
+        let visible = 0;
+
+        entries.forEach(function (entry) {
+            const username = (
+                entry.dataset.username || ""
+            ).toLocaleLowerCase("ru");
+
+            const email = (
+                entry.dataset.email || ""
+            ).toLocaleLowerCase("ru");
+
+            const entryRole = entry.dataset.role || "";
+
+            const matchesText = (
+                !query
+                || username.includes(query)
+                || email.includes(query)
+            );
+
+            const matchesRole = (
+                !roleValue
+                || entryRole === roleValue
+            );
+
+            const show = matchesText && matchesRole;
+
+            entry.hidden = !show;
+
+            if (show) {
+                visible += 1;
+            }
+        });
+
+        count.textContent = (
+            "Показано "
+            + visible
+            + " из "
+            + total
+        );
+
+        empty.hidden = visible !== 0;
+    }
+
+    search.addEventListener(
+        "input",
+        applyUsersFilter
+    );
+
+    role.addEventListener(
+        "change",
+        applyUsersFilter
+    );
+});
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Избранное · Котополис{% endblock %}
+
+{% block content %}
+
+<div class="kp-favorites-page">
+
+    <header class="kp-favorites-header">
+        <div class="kp-quiet-kicker">Твои любимчики</div>
+        <div class="kp-favorites-title-row">
+            <div>
+                <h1>Избранные котики</h1>
+                {% if cats %}
+                <p>
+                    Здесь котики, отмеченные сердечком.
+                </p>
+                {% endif %}
+            </div>
+
+            {% if cats %}
+            <div class="kp-favorites-count">
+                {{ cats|length }}
+                {% if cats|length == 1 %}
+                    котик
+                {% elif cats|length in [2, 3, 4] %}
+                    котика
+                {% else %}
+                    котиков
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if cats %}
+
+    <section class="kp-favorites-grid" aria-label="Избранные котики">
+
+        {% for cat in cats %}
+
+        <article class="kp-favorite-card">
+
+            <a
+                href="{{ url_for('cat_details', cat_id=cat.id) }}"
+                class="kp-favorite-card-link"
+                aria-label="Подробнее о {{ cat.name }}"
+            ></a>
+
+            <div class="kp-favorite-media">
+                {% set media = cat_media_sources(cat) %}
+                <img
+                    src="{{ media.animated }}"
+                    data-poster-src="{{ media.poster }}"
+                    data-animated-src="{{ media.animated }}"
+                    data-fallback="{{ media.original }}"
+                    alt="{{ cat.name }}"
+                    loading="lazy"
+                    class="kp-favorite-image kp-media-fallback"
+                    onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){this.src=this.dataset.fallback}else{this.style.display='none';this.parentElement.classList.add('kp-favorite-media-empty')}"
+                >
+
+                <span class="kp-favorite-status">
+                    {{ cat.status }}
+                </span>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('toggle_favorite', cat_id=cat.id) }}"
+                    class="kp-favorite-remove-form"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="kp-favorite-remove"
+                        aria-label="Удалить {{ cat.name }} из избранного"
+                        title="Удалить из избранного"
+                    >
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="kp-favorite-body">
+
+                <h2>{{ cat.name }}</h2>
+
+                <p class="kp-favorite-facts">
+                    {% if cat.age is not none %}
+                        {{ cat.age }}
+                        {% if cat.age == 1 %}
+                            год
+                        {% elif cat.age in [2, 3, 4] %}
+                            года
+                        {% else %}
+                            лет
+                        {% endif %}
+                    {% endif %}
+
+                    {% if cat.age is not none and cat.breed %}
+                        <span aria-hidden="true">·</span>
+                    {% endif %}
+
+                    {% if cat.breed %}
+                        {{ cat.breed }}
+                    {% else %}
+                        Без породы
+                    {% endif %}
+                </p>
+
+                {% if cat.personality %}
+                <p class="kp-favorite-personality">
+                    {{ cat.personality }}
+                </p>
+                {% endif %}
+
+                <a
+                    href="{{ url_for('cat_details', cat_id=cat.id) }}"
+                    class="kp-favorite-more"
+                >
+                    Подробнее
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </section>
+
+    {% else %}
+
+    <section class="kp-favorites-empty">
+
+        <div class="kp-favorites-empty-icon">
+            <i class="far fa-heart" aria-hidden="true"></i>
+        </div>
+
+        <h2>В избранном пока никого нет</h2>
+
+        <p>
+            Отмечай котиков сердечком, чтобы сохранить их здесь.
+        </p>
+
+        <a href="{{ url_for('cats') }}" class="kp-favorites-catalog-link">
+            Смотреть котиков
+        </a>
+
+    </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
