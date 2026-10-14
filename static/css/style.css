@@ -1,11 +1,11 @@
 :root {
     --pink: #ff69b4;
     --pink-dark: #ff1493;
-    --pink-light: #fff0f5;
-    --pink-soft: #ffe4ef;
-    --text: #4b3b45;
-    --muted: #8d7b86;
-    --white: #ffffff;
+    --pink-light: var(--kp-theme-soft, #fff0f5);
+    --pink-soft: var(--kp-theme-pink-soft, #ffe4ef);
+    --text: var(--kp-theme-text, #4b3b45);
+    --muted: var(--kp-theme-muted, #8d7b86);
+    --white: var(--kp-theme-surface, #ffffff);
     --shadow: 0 12px 30px rgba(218, 95, 151, 0.12);
 }
 
@@ -19,7 +19,7 @@ body {
     color: var(--text);
     background:
         radial-gradient(circle at top left, rgba(255, 182, 193, 0.18), transparent 32%),
-        linear-gradient(180deg, #fffafd 0%, #fff5f9 100%);
+        linear-gradient(180deg, var(--kp-theme-surface, #fffafd) 0%, var(--kp-theme-soft, #fff5f9) 100%);
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -28,7 +28,7 @@ a {
 }
 
 a:hover {
-    color: #d9147f;
+    color: var(--kp-theme-pink-text, #d9147f);
 }
 
 .bg-pink {
@@ -60,7 +60,7 @@ a:hover {
 .btn-outline-pink {
     border: 1px solid var(--pink);
     color: var(--pink-dark);
-    background: white;
+    background: var(--kp-theme-surface, white);
     border-radius: 14px;
 }
 
@@ -70,9 +70,9 @@ a:hover {
 }
 
 .navbar-kotopolis {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(var(--kp-theme-surface-rgb, 255, 255, 255), 0.95);
     box-shadow: 0 6px 18px rgba(197, 97, 146, 0.1);
-    border-bottom: 1px solid rgba(255, 105, 180, 0.15);
+    border-bottom: 1px solid rgba(var(--kp-theme-border-rgb, 255, 105, 180), 0.15);
     backdrop-filter: blur(10px);
 }
 
@@ -82,7 +82,7 @@ a:hover {
 }
 
 .nav-link {
-    color: #6e5965 !important;
+    color: var(--kp-theme-muted, #6e5965) !important;
     font-weight: 500;
 }
 
@@ -91,7 +91,7 @@ a:hover {
 }
 
 .card {
-    border: 1px solid rgba(255, 105, 180, 0.1);
+    border: 1px solid rgba(var(--kp-theme-border-rgb, 255, 105, 180), 0.1);
     border-radius: 22px;
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -104,7 +104,7 @@ a:hover {
 .form-control,
 .form-select {
     border-radius: 12px;
-    border: 1px solid #ecdbe4;
+    border: 1px solid var(--kp-theme-border, #ecdbe4);
     padding: 0.75rem 0.9rem;
 }
 
@@ -121,11 +121,11 @@ a:hover {
 
 .stat-card {
     height: 100%;
-    background: white;
+    background: var(--kp-theme-surface, white);
     border-radius: 22px;
     padding: 24px;
     box-shadow: var(--shadow);
-    border: 1px solid rgba(255, 105, 180, 0.1);
+    border: 1px solid rgba(var(--kp-theme-border-rgb, 255, 105, 180), 0.1);
 }
 
 .stat-icon {
@@ -144,7 +144,7 @@ a:hover {
 .stat-value {
     font-size: 2rem;
     font-weight: 800;
-    color: #49323f;
+    color: var(--kp-theme-text, #49323f);
 }
 
 .stat-label {
@@ -175,7 +175,7 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #ffe4ef, #fff4f8);
+    background: linear-gradient(135deg, var(--kp-theme-pink-soft, #ffe4ef), var(--kp-theme-soft, #fff4f8));
     font-size: 5rem;
 }
 
@@ -194,7 +194,7 @@ a:hover {
     margin: 0 auto;
     font-size: 2rem;
     font-weight: 800;
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(var(--kp-theme-surface-rgb, 255, 255, 255), 0.22);
     color: white;
 }
 
@@ -203,16 +203,16 @@ a:hover {
 }
 
 .footer-kotopolis {
-    color: #8a7480;
+    color: var(--kp-theme-muted, #8a7480);
     padding: 28px 0;
 }
 
 .empty-box {
-    border: 2px dashed rgba(255, 105, 180, 0.25);
+    border: 2px dashed rgba(var(--kp-theme-border-rgb, 255, 105, 180), 0.25);
     border-radius: 20px;
     padding: 36px 20px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(var(--kp-theme-surface-rgb, 255, 255, 255), 0.7);
 }
 
 .hero-cat-name {

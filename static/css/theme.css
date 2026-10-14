@@ -1,0 +1,144 @@
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --kp-theme-page: #191b20;
+    --kp-theme-surface: #24262d;
+    --kp-theme-soft: #2c2e36;
+    --kp-theme-text: #f1edf2;
+    --kp-theme-muted: #bdb5c2;
+    --kp-theme-border: #4a4551;
+    --kp-theme-pink-soft: #3b2935;
+    --kp-theme-purple-soft: #302b41;
+    --kp-theme-success-soft: #21382f;
+    --kp-theme-warning-soft: #3c3323;
+    --kp-theme-danger-soft: #402a30;
+    --kp-theme-info-soft: #253443;
+    --kp-theme-pink-text: #ff96c7;
+    --kp-theme-purple-text: #c6adff;
+    --kp-theme-success-text: #83dbb1;
+    --kp-theme-warning-text: #f5d080;
+    --kp-theme-danger-text: #ffa2b0;
+    --kp-theme-info-text: #9dcaff;
+    --kp-theme-surface-rgb: 36, 38, 45;
+    --kp-theme-soft-rgb: 44, 46, 54;
+    --kp-theme-border-rgb: 74, 69, 81;
+    --kp-theme-pink-soft-rgb: 59, 41, 53;
+    --kp-theme-pink-text-rgb: 255, 150, 199;
+    --bs-body-color: var(--kp-theme-text);
+    --bs-body-bg: var(--kp-theme-page);
+    --bs-secondary-color: var(--kp-theme-muted);
+    --bs-tertiary-bg: var(--kp-theme-soft);
+    --bs-border-color: var(--kp-theme-border);
+    --bs-emphasis-color: var(--kp-theme-text);
+    --bs-link-color: var(--kp-theme-pink-text);
+    --bs-link-hover-color: #ffb7da;
+}
+
+html[data-theme="dark"] body {
+    background-color: var(--kp-theme-page);
+}
+
+[data-theme="dark"] .table {
+    --bs-table-color: var(--kp-theme-text);
+    --bs-table-bg: var(--kp-theme-surface);
+    --bs-table-border-color: var(--kp-theme-border);
+    --bs-table-striped-color: var(--kp-theme-text);
+    --bs-table-striped-bg: var(--kp-theme-soft);
+    --bs-table-hover-color: var(--kp-theme-text);
+    --bs-table-hover-bg: var(--kp-theme-soft);
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .card {
+    --bs-modal-bg: var(--kp-theme-surface);
+    --bs-modal-color: var(--kp-theme-text);
+    --bs-dropdown-bg: var(--kp-theme-surface);
+    --bs-dropdown-color: var(--kp-theme-text);
+    --bs-dropdown-link-color: var(--kp-theme-text);
+    --bs-dropdown-link-hover-bg: var(--kp-theme-soft);
+    --bs-dropdown-link-hover-color: var(--kp-theme-text);
+    --bs-card-bg: var(--kp-theme-surface);
+    --bs-card-color: var(--kp-theme-text);
+}
+
+[data-theme="dark"] .alert-success {
+    --bs-alert-color: var(--kp-theme-success-text);
+    --bs-alert-bg: var(--kp-theme-success-soft);
+    --bs-alert-border-color: #426b57;
+}
+[data-theme="dark"] .alert-warning {
+    --bs-alert-color: var(--kp-theme-warning-text);
+    --bs-alert-bg: var(--kp-theme-warning-soft);
+    --bs-alert-border-color: #76633a;
+}
+[data-theme="dark"] .alert-danger {
+    --bs-alert-color: var(--kp-theme-danger-text);
+    --bs-alert-bg: var(--kp-theme-danger-soft);
+    --bs-alert-border-color: #794652;
+}
+[data-theme="dark"] .alert-info {
+    --bs-alert-color: var(--kp-theme-info-text);
+    --bs-alert-bg: var(--kp-theme-info-soft);
+    --bs-alert-border-color: #456782;
+}
+
+[data-theme="dark"] .btn-close,
+[data-theme="dark"] .navbar-toggler-icon {
+    filter: brightness(0) invert(1);
+}
+
+.kp-theme-toggle {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 1030;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid var(--kp-theme-border, #e7dce3);
+    border-radius: 50%;
+    background: var(--kp-theme-surface, #fff);
+    color: var(--kp-theme-pink-text, #9c3766);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 15%);
+    cursor: pointer;
+}
+
+.kp-theme-toggle:hover {
+    background: var(--kp-theme-soft, #fff0f7);
+}
+
+.kp-theme-toggle:focus-visible {
+    outline: 3px solid var(--kp-theme-pink-text, #9c3766);
+    outline-offset: 3px;
+}
+
+.kp-theme-toggle svg {
+    width: 23px;
+    height: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kp-theme-toggle .kp-theme-sun,
+[data-theme="dark"] .kp-theme-toggle .kp-theme-moon {
+    display: none;
+}
+
+[data-theme="dark"] .kp-theme-toggle .kp-theme-sun {
+    display: block;
+}
+
+body.modal-open .kp-theme-toggle {
+    visibility: hidden;
+}
+
+@media print {
+    .kp-theme-toggle {
+        display: none;
+    }
+}
