@@ -9436,10 +9436,15 @@ body.kp-ready main {
 
 .kp-auth3-cat-gif {
     display: block;
-    width: min(82%, 430px);
     height: auto;
     object-fit: contain;
     object-position: center;
+}
+
+@media (min-width: 768px) {
+    .kp-auth3-cat-gif {
+        width: min(82%, 430px);
+    }
 }
 
 body,
