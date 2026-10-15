@@ -137,6 +137,20 @@ body.modal-open .kp-theme-toggle {
     visibility: hidden;
 }
 
+@media (max-width: 767px) {
+    .navbar-kotopolis > .container {
+        padding-right: calc(62px + env(safe-area-inset-right, 0px));
+    }
+
+    .kp-theme-toggle {
+        top: max(10px, env(safe-area-inset-top, 0px));
+        right: max(10px, env(safe-area-inset-right, 0px));
+        bottom: auto;
+        width: 42px;
+        height: 42px;
+    }
+}
+
 @media print {
     .kp-theme-toggle {
         display: none;
