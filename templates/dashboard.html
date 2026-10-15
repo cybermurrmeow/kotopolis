@@ -174,24 +174,6 @@
 
     
 
-    {% if current_user.role == 'admin' %}
-    <aside class="kp-quiet-staff" aria-labelledby="staff-summary-title">
-        <div>
-            <div class="kp-quiet-kicker">Для команды</div>
-            <h2 id="staff-summary-title">Состояние котиков</h2>
-            <p>
-                <strong>{{ stats.treatment|default(0) }}</strong> на лечении
-                <span aria-hidden="true">·</span>
-                <strong>{{ stats.quarantine|default(0) }}</strong> в карантине
-                <span aria-hidden="true">·</span>
-                <strong>{{ need_vacc|default([])|length }}</strong> требуют внимания
-            </p>
-        </div>
-        <a href="{{ url_for('cats', status='На лечении') }}" class="kp-quiet-text-link">
-            Открыть список
-        </a>
-    </aside>
-    {% endif %}
 
 </div>
 {% endblock %}
