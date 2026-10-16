@@ -244,6 +244,7 @@
 
                         {% set role_class = {
                             'user': 'role-user',
+
                             'admin': 'role-admin'
                         }.get(
                             user.role,
@@ -253,6 +254,7 @@
                         <span class="badge {{ role_class }}">
                             {% if user.role == 'admin' %}
                                 Администратор
+
                             {% else %}
                                 Пользователь
                             {% endif %}
@@ -389,7 +391,7 @@
                             <div class="kp-danger-actions-body">
 
                                 <p class="small text-muted mb-2">
-                                    Аккаунт с заявками или комментариями сохраняется в истории. Удаление пустого аккаунта нельзя отменить.
+                                    Удаление пользователя нельзя отменить.
                                 </p>
 
                                 <form
@@ -398,13 +400,13 @@
                                         'delete_user',
                                         user_id=user.id
                                     ) }}"
-                                    onsubmit="return confirm('Удалить пользователя? Аккаунты с историей удалить нельзя.');"
+                                    data-delete-username="{{ user.username|e }}"
                                 >
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                                     <button
-                                        type="submit"
-                                        class="btn btn-outline-danger w-100"
+                                        type="button"
+                                        class="btn btn-outline-danger w-100 kp-delete-user-trigger"
                                     >
                                         Удалить пользователя
                                     </button>
@@ -488,7 +490,7 @@
                         >
 
                         <div class="form-text">
-                            3-30 символов. Буквы, цифры,
+                            3–30 символов. Буквы, цифры,
                             дефис и нижнее подчёркивание.
                         </div>
 
@@ -611,6 +613,12 @@
 {% block scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("createUserModal");
+
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+
     const search = document.getElementById("usersSearch");
     const role = document.getElementById("usersRoleFilter");
     const entries = Array.from(
@@ -680,7 +688,161 @@ document.addEventListener("DOMContentLoaded", function () {
     role.addEventListener(
         "change",
         applyUsersFilter
-    );
+
+    });
 });
 </script>
+
+
+<div id="kpDeleteUserDialog" class="kp-delete-dialog" hidden>
+    <div class="kp-delete-dialog-box" role="dialog" aria-modal="true">
+        <h3>Подтвердите удаление</h3>
+        <p id="kpDeleteDialogText"></p>
+        <div class="kp-delete-dialog-actions">
+            <button type="button" id="kpDeleteCancel">Отмена</button>
+            <button type="button" id="kpDeleteConfirm">Удалить</button>
+        </div>
+    </div>
+</div>
+
+
+<style>
+.kp-delete-dialog[hidden] {
+    display: none !important;
+}
+.kp-delete-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    background: rgba(8, 5, 15, .78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.kp-delete-dialog-box {
+    width: 100%;
+    max-width: 390px;
+    background: #211629;
+    color: #f7edf8;
+    border: 1px solid rgba(235, 142, 198, .25);
+    border-radius: 22px;
+    padding: 26px 22px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+}
+.kp-delete-dialog-box h3 {
+    color: #f7edf8;
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 14px;
+}
+.kp-delete-dialog-box p {
+    color: #d4c3d8;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+}
+.kp-delete-dialog-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+.kp-delete-dialog-actions button {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+#kpDeleteCancel {
+    background: #38283f;
+    color: #f7edf8;
+    border: 1px solid #57405d;
+}
+#kpDeleteConfirm {
+    background: #b93759;
+    color: #fff;
+    border: 1px solid #b93759;
+}
+#kpDeleteCancel:active,
+#kpDeleteConfirm:active {
+    transform: scale(.98);
+}
+</style>
+
+
+<script>
+/* KP_DELETE_USER_FINAL */
+(function () {
+    function init() {
+        var dialog = document.getElementById("kpDeleteUserDialog");
+        var cancel = document.getElementById("kpDeleteCancel");
+        var confirmButton = document.getElementById("kpDeleteConfirm");
+        var message = document.getElementById("kpDeleteDialogText");
+        var selectedForm = null;
+
+        if (!dialog || !cancel || !confirmButton || !message) return;
+
+        document.querySelectorAll(".kp-delete-user-trigger").forEach(function (button) {
+            button.addEventListener("click", function () {
+                selectedForm = button.closest("form");
+                if (!selectedForm) return;
+
+                var username = selectedForm.dataset.deleteUsername || "";
+                message.textContent = "Удалить пользователя " + username + "?";
+                dialog.hidden = false;
+            });
+        });
+
+        cancel.addEventListener("click", function () {
+            dialog.hidden = true;
+            selectedForm = null;
+        });
+
+        confirmButton.addEventListener("click", function () {
+            if (!selectedForm) return;
+            var form = selectedForm;
+            selectedForm = null;
+            dialog.hidden = true;
+            HTMLFormElement.prototype.submit.call(form);
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+/* KP_CREATE_MODAL_TOUCH_FIX */
+body:has(#createUserModal.show) .modal-backdrop {
+    pointer-events: none !important;
+}
+
+#createUserModal.show {
+    pointer-events: auto !important;
+    z-index: 21000 !important;
+}
+</style>
+
 {% endblock %}

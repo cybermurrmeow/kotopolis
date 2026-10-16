@@ -1,9 +1,8 @@
 from collections import Counter
-import csv
 from datetime import date, datetime
-from html import escape as _html_escape
-from io import BytesIO, StringIO
+from io import BytesIO
 import os
+from xml.sax.saxutils import escape as _xml_escape
 
 from openpyxl import Workbook
 from openpyxl.styles import (
@@ -33,113 +32,179 @@ from reportlab.platypus import (
 )
 
 
+
 def _pdf_escape(value):
+
     if value is None:
         return ""
 
-    return _html_escape(str(value))
-
-
-def spreadsheet_safe(value):
-    if not isinstance(value, str):
-        return value
-
-    if value.lstrip().startswith(("=", "+", "-", "@", "\t", "\r")):
-        return "'" + value
-
-    return value
-
-
-def export_to_csv(cats):
-    output = StringIO(newline="")
-    output.write("\ufeff")
-    writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(
-        [
-            "ID",
-            "Имя",
-            "Прозвище",
-            "Возраст",
-            "Порода",
-            "Пол",
-            "Окрас",
-            "Вес, кг",
-            "Статус",
-            "Дата поступления",
-            "Дата усыновления",
-            "Вакцинирован",
-            "Стерилизован",
-            "Здоровье",
-            "Описание",
-        ]
+    return _xml_escape(
+        str(value)
     )
 
-    for cat in cats:
-        writer.writerow(
-            [
-                cat.id,
-                spreadsheet_safe(cat.name or ""),
-                spreadsheet_safe(cat.nickname or ""),
-                cat.age if cat.age is not None else "",
-                spreadsheet_safe(cat.breed or ""),
-                spreadsheet_safe(cat.gender or ""),
-                spreadsheet_safe(cat.color or ""),
-                cat.weight if cat.weight is not None else "",
-                spreadsheet_safe(cat.status or ""),
-                cat.arrival_date.strftime("%d.%m.%Y") if cat.arrival_date else "",
-                cat.adoption_date.strftime("%d.%m.%Y") if cat.adoption_date else "",
-                "Да" if cat.is_vaccinated else "Нет",
-                "Да" if cat.is_sterilized else "Нет",
-                spreadsheet_safe(cat.health or ""),
-                spreadsheet_safe(cat.description or ""),
-            ]
-        )
 
-    return output.getvalue()
-
+# ==========================================================
+# СТАТИСТИКА
+# ==========================================================
 
 def calculate_stats(cats):
+
     cats = list(cats)
+
     total = len(cats)
-    status_counts = Counter((cat.status or "Не указан") for cat in cats)
-    mood_counts = Counter((cat.mood or "Не указано") for cat in cats)
-    breed_counts = Counter((cat.breed or "Без породы") for cat in cats)
-    vaccinated_count = sum(1 for cat in cats if cat.is_vaccinated is True)
-    sterilized_count = sum(1 for cat in cats if cat.is_sterilized is True)
+
+    status_counts = Counter(
+        (
+            cat.status
+            or "Не указан"
+        )
+        for cat in cats
+    )
+
+    mood_counts = Counter(
+        (
+            cat.mood
+            or "Не указано"
+        )
+        for cat in cats
+    )
+
+    breed_counts = Counter(
+        (
+            cat.breed
+            or "Без породы"
+        )
+        for cat in cats
+    )
+
+    vaccinated_count = sum(
+        1
+        for cat in cats
+        if cat.is_vaccinated is True
+    )
+
+    sterilized_count = sum(
+        1
+        for cat in cats
+        if cat.is_sterilized is True
+    )
+
     today = date.today()
+
     need_vacc = []
 
     for cat in cats:
-        if cat.is_vaccinated is not True or (
-            cat.next_vacc_date and cat.next_vacc_date < today
+
+        if (
+            cat.is_vaccinated is not True
+            or (
+                cat.next_vacc_date
+                and cat.next_vacc_date < today
+            )
         ):
-            need_vacc.append(cat)
+            need_vacc.append(
+                cat
+            )
 
     stats = {
-        "total": total,
-        "in_shelter": status_counts.get("В приюте", 0),
-        "adopted": status_counts.get("Усыновлён", 0),
-        "treatment": status_counts.get("На лечении", 0),
-        "quarantine": status_counts.get("В карантине", 0),
-        "vaccinated_count": vaccinated_count,
-        "sterilized_count": sterilized_count,
-        "need_vacc_count": len(need_vacc),
-        "vaccination_rate": (vaccinated_count / total * 100) if total else 0,
-        "sterilization_rate": (sterilized_count / total * 100) if total else 0,
-        "need_vacc_rate": (len(need_vacc) / total * 100) if total else 0,
-        "status_counts": dict(status_counts),
-        "mood_counts": dict(mood_counts),
-        "breed_counts": dict(breed_counts),
+        "total":
+            total,
+
+        "in_shelter":
+            status_counts.get(
+                "В приюте",
+                0
+            ),
+
+        "adopted":
+            status_counts.get(
+                "Усыновлён",
+                0
+            ),
+
+        "treatment":
+            status_counts.get(
+                "На лечении",
+                0
+            ),
+
+        "quarantine":
+            status_counts.get(
+                "В карантине",
+                0
+            ),
+
+        "vaccinated_count":
+            vaccinated_count,
+
+        "sterilized_count":
+            sterilized_count,
+
+        "need_vacc_count":
+            len(
+                need_vacc
+            ),
+
+        "vaccination_rate":
+            (
+                vaccinated_count
+                / total
+                * 100
+            )
+            if total
+            else 0,
+
+        "sterilization_rate":
+            (
+                sterilized_count
+                / total
+                * 100
+            )
+            if total
+            else 0,
+
+        "need_vacc_rate":
+            (
+                len(need_vacc)
+                / total
+                * 100
+            )
+            if total
+            else 0,
+
+        "status_counts":
+            dict(
+                status_counts
+            ),
+
+        "mood_counts":
+            dict(
+                mood_counts
+            ),
+
+        "breed_counts":
+            dict(
+                breed_counts
+            ),
     }
 
     return stats
 
 
+# ==========================================================
+# EXCEL
+# ==========================================================
+
 def export_to_excel(cats):
+
     cats = list(cats)
+
     workbook = Workbook()
+
     sheet = workbook.active
+
     sheet.title = "Котики"
+
     headers = [
         "ID",
         "Имя",
@@ -170,22 +235,48 @@ def export_to_excel(cats):
         "Рекомендация",
     ]
 
-    sheet.append(headers)
+    sheet.append(
+        headers
+    )
 
-    pink_fill = PatternFill(fill_type="solid", fgColor="EFA7C5")
-    header_font = Font(bold=True, color="FFFFFF")
-    thin = Side(style="thin", color="E8D7DF")
-    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    pink_fill = PatternFill(
+        fill_type="solid",
+        fgColor="EFA7C5"
+    )
+
+    header_font = Font(
+        bold=True,
+        color="FFFFFF"
+    )
+
+    thin = Side(
+        style="thin",
+        color="E8D7DF"
+    )
+
+    border = Border(
+        left=thin,
+        right=thin,
+        top=thin,
+        bottom=thin
+    )
 
     for cell in sheet[1]:
+
         cell.fill = pink_fill
+
         cell.font = header_font
+
         cell.alignment = Alignment(
-            horizontal="center", vertical="center", wrap_text=True
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
         )
+
         cell.border = border
 
     def yes_no(value):
+
         if value is True:
             return "Да"
 
@@ -195,41 +286,65 @@ def export_to_excel(cats):
         return ""
 
     for cat in cats:
+
         sheet.append(
             [
                 cat.id,
-                spreadsheet_safe(cat.name),
-                spreadsheet_safe(cat.nickname or ""),
-                cat.age if cat.age is not None else "",
-                spreadsheet_safe(cat.breed or ""),
-                spreadsheet_safe(cat.gender or ""),
-                spreadsheet_safe(cat.color or ""),
-                cat.weight if cat.weight is not None else "",
-                spreadsheet_safe(cat.mood or ""),
-                spreadsheet_safe(cat.status or ""),
+                cat.name,
+                cat.nickname or "",
+                cat.age
+                if cat.age is not None
+                else "",
+                cat.breed or "",
+                cat.gender or "",
+                cat.color or "",
+                cat.weight
+                if cat.weight is not None
+                else "",
+                cat.mood or "",
+                cat.status or "",
                 cat.arrival_date or "",
                 cat.adoption_date or "",
-                yes_no(cat.is_vaccinated),
+                yes_no(
+                    cat.is_vaccinated
+                ),
                 cat.last_vacc_date or "",
                 cat.next_vacc_date or "",
-                yes_no(cat.is_sterilized),
-                spreadsheet_safe(cat.personality or ""),
-                spreadsheet_safe(cat.activity_level or ""),
-                spreadsheet_safe(cat.favorite_toy or ""),
-                spreadsheet_safe(cat.favorite_place or ""),
-                yes_no(cat.kids_friendly),
-                yes_no(cat.cats_friendly),
-                yes_no(cat.dogs_friendly),
-                spreadsheet_safe(cat.vocal or ""),
-                spreadsheet_safe(cat.food_preferences or ""),
-                spreadsheet_safe(cat.story or ""),
-                spreadsheet_safe(cat.adoption_recommendation or ""),
+                yes_no(
+                    cat.is_sterilized
+                ),
+                cat.personality or "",
+                cat.activity_level or "",
+                cat.favorite_toy or "",
+                cat.favorite_place or "",
+                yes_no(
+                    cat.kids_friendly
+                ),
+                yes_no(
+                    cat.cats_friendly
+                ),
+                yes_no(
+                    cat.dogs_friendly
+                ),
+                cat.vocal or "",
+                cat.food_preferences or "",
+                cat.story or "",
+                cat.adoption_recommendation
+                or "",
             ]
         )
 
-    for row in sheet.iter_rows(min_row=2):
+    for row in sheet.iter_rows(
+        min_row=2
+    ):
+
         for cell in row:
-            cell.alignment = Alignment(vertical="top", wrap_text=True)
+
+            cell.alignment = Alignment(
+                vertical="top",
+                wrap_text=True
+            )
+
             cell.border = border
 
     widths = {
@@ -263,91 +378,231 @@ def export_to_excel(cats):
     }
 
     for column, width in widths.items():
-        sheet.column_dimensions[column].width = width
+
+        sheet.column_dimensions[
+            column
+        ].width = width
 
     sheet.freeze_panes = "A2"
-    sheet.auto_filter.ref = sheet.dimensions
-    stats_sheet = workbook.create_sheet("Статистика")
-    stats = calculate_stats(cats)
+
+    sheet.auto_filter.ref = (
+        sheet.dimensions
+    )
+
+
+    stats_sheet = (
+        workbook.create_sheet(
+            "Статистика"
+        )
+    )
+
+    stats = calculate_stats(
+        cats
+    )
+
     stats_rows = [
-        ["Показатель", "Значение"],
-        ["Всего котиков", stats["total"]],
-        ["В приюте", stats["in_shelter"]],
-        ["Усыновлено", stats["adopted"]],
-        ["На лечении", stats["treatment"]],
-        ["В карантине", stats["quarantine"]],
-        ["Вакцинировано", stats["vaccinated_count"]],
-        ["Стерилизовано", stats["sterilized_count"]],
-        ["Требуют внимания по вакцинации", stats["need_vacc_count"]],
+        [
+            "Показатель",
+            "Значение"
+        ],
+        [
+            "Всего котиков",
+            stats["total"]
+        ],
+        [
+            "В приюте",
+            stats["in_shelter"]
+        ],
+        [
+            "Усыновлено",
+            stats["adopted"]
+        ],
+        [
+            "На лечении",
+            stats["treatment"]
+        ],
+        [
+            "В карантине",
+            stats["quarantine"]
+        ],
+        [
+            "Вакцинировано",
+            stats[
+                "vaccinated_count"
+            ]
+        ],
+        [
+            "Стерилизовано",
+            stats[
+                "sterilized_count"
+            ]
+        ],
+        [
+            "Требуют внимания по вакцинации",
+            stats[
+                "need_vacc_count"
+            ]
+        ],
     ]
 
     for row in stats_rows:
-        stats_sheet.append(row)
+
+        stats_sheet.append(
+            row
+        )
 
     for cell in stats_sheet[1]:
+
         cell.fill = pink_fill
         cell.font = header_font
         cell.border = border
 
     for row in stats_sheet.iter_rows():
-        for cell in row:
-            cell.border = border
-            cell.alignment = Alignment(vertical="top", wrap_text=True)
 
-    stats_sheet.column_dimensions["A"].width = 38
-    stats_sheet.column_dimensions["B"].width = 18
+        for cell in row:
+
+            cell.border = border
+
+            cell.alignment = Alignment(
+                vertical="top",
+                wrap_text=True
+            )
+
+    stats_sheet.column_dimensions[
+        "A"
+    ].width = 38
+
+    stats_sheet.column_dimensions[
+        "B"
+    ].width = 18
+
+
     output = BytesIO()
 
-    workbook.save(output)
+    workbook.save(
+        output
+    )
 
-    output.seek(0)
+    output.seek(
+        0
+    )
 
     return output
 
 
+# ==========================================================
+# PDF
+# ==========================================================
+
 def _register_pdf_fonts():
+
     regular_candidates = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
         "C:/Windows/Fonts/arial.ttf",
         "C:/Windows/Fonts/calibri.ttf",
     ]
+
     bold_candidates = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
         "C:/Windows/Fonts/arialbd.ttf",
         "C:/Windows/Fonts/calibrib.ttf",
     ]
+
     regular_path = next(
-        (path for path in regular_candidates if os.path.exists(path)), None
+        (
+            path
+            for path
+            in regular_candidates
+            if os.path.exists(
+                path
+            )
+        ),
+        None
     )
-    bold_path = next((path for path in bold_candidates if os.path.exists(path)), None)
+
+    bold_path = next(
+        (
+            path
+            for path
+            in bold_candidates
+            if os.path.exists(
+                path
+            )
+        ),
+        None
+    )
 
     if not regular_path:
-        raise FileNotFoundError("Не найден шрифт " "с поддержкой кириллицы")
+
+        raise FileNotFoundError(
+            "Не найден шрифт "
+            "с поддержкой кириллицы"
+        )
 
     if not bold_path:
+
         bold_path = regular_path
 
-    if "KotopolisRegular" not in pdfmetrics.getRegisteredFontNames():
-        pdfmetrics.registerFont(TTFont("KotopolisRegular", regular_path))
-    if "KotopolisBold" not in pdfmetrics.getRegisteredFontNames():
-        pdfmetrics.registerFont(TTFont("KotopolisBold", bold_path))
+    try:
 
-    return ("KotopolisRegular", "KotopolisBold")
+        pdfmetrics.registerFont(
+            TTFont(
+                "KotopolisRegular",
+                regular_path
+            )
+        )
+
+    except Exception:
+
+        pass
+
+    try:
+
+        pdfmetrics.registerFont(
+            TTFont(
+                "KotopolisBold",
+                bold_path
+            )
+        )
+
+    except Exception:
+
+        pass
+
+    return (
+        "KotopolisRegular",
+        "KotopolisBold"
+    )
 
 
-def generate_pdf_report(cats, stats=None):
-    cats = list(cats)
+def generate_pdf_report(
+    cats,
+    stats=None
+):
+
+    cats = list(
+        cats
+    )
 
     if stats is None:
-        stats = calculate_stats(cats)
 
-    regular_font, bold_font = _register_pdf_fonts()
+        stats = calculate_stats(
+            cats
+        )
+
+    regular_font, bold_font = (
+        _register_pdf_fonts()
+    )
+
     buffer = BytesIO()
+
     document = SimpleDocTemplate(
         buffer,
-        pagesize=landscape(A4),
+        pagesize=landscape(
+            A4
+        ),
         leftMargin=14 * mm,
         rightMargin=14 * mm,
         topMargin=14 * mm,
@@ -355,26 +610,34 @@ def generate_pdf_report(cats, stats=None):
         title="Отчёт Котополис",
         author="Котополис",
     )
+
     styles = getSampleStyleSheet()
+
     title_style = ParagraphStyle(
         "KotopolisTitle",
         parent=styles["Title"],
         fontName=bold_font,
         fontSize=20,
         leading=24,
-        textColor=colors.HexColor("#D85F93"),
+        textColor=colors.HexColor(
+            "#D85F93"
+        ),
         spaceAfter=8 * mm,
     )
+
     heading_style = ParagraphStyle(
         "KotopolisHeading",
         parent=styles["Heading2"],
         fontName=bold_font,
         fontSize=13,
         leading=16,
-        textColor=colors.HexColor("#D85F93"),
+        textColor=colors.HexColor(
+            "#D85F93"
+        ),
         spaceBefore=4 * mm,
         spaceAfter=3 * mm,
     )
+
     normal_style = ParagraphStyle(
         "KotopolisNormal",
         parent=styles["BodyText"],
@@ -382,116 +645,313 @@ def generate_pdf_report(cats, stats=None):
         fontSize=9,
         leading=12,
     )
+
     small_style = ParagraphStyle(
         "KotopolisSmall",
         parent=normal_style,
         fontSize=7.5,
         leading=9,
     )
+
     story = []
-
-    story.append(Paragraph("Котополис 🐱", title_style))
-
-    story.append(Paragraph("Отчёт о состоянии приюта", heading_style))
 
     story.append(
         Paragraph(
-            ("Отчёт сформирован: " + datetime.now().strftime("%d.%m.%Y %H:%M")),
-            normal_style,
+            "Котополис 🐱",
+            title_style
         )
     )
 
-    story.append(Spacer(1, 5 * mm))
+    story.append(
+        Paragraph(
+            "Отчёт о состоянии приюта",
+            heading_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            (
+                "Отчёт сформирован: "
+                + datetime.now().strftime(
+                    "%d.%m.%Y %H:%M"
+                )
+            ),
+            normal_style
+        )
+    )
+
+    story.append(
+        Spacer(
+            1,
+            5 * mm
+        )
+    )
+
 
     stats_data = [
         [
-            Paragraph("Показатель", normal_style),
-            Paragraph("Значение", normal_style),
+            Paragraph(
+                "Показатель",
+                normal_style
+            ),
+            Paragraph(
+                "Значение",
+                normal_style
+            ),
         ],
         [
             "Всего котиков",
-            stats.get("total", 0),
+            stats.get(
+                "total",
+                0
+            ),
         ],
         [
             "В приюте",
-            stats.get("in_shelter", 0),
+            stats.get(
+                "in_shelter",
+                0
+            ),
         ],
         [
             "Усыновлено",
-            stats.get("adopted", 0),
+            stats.get(
+                "adopted",
+                0
+            ),
         ],
         [
             "На лечении",
-            stats.get("treatment", 0),
+            stats.get(
+                "treatment",
+                0
+            ),
         ],
         [
             "В карантине",
-            stats.get("quarantine", 0),
+            stats.get(
+                "quarantine",
+                0
+            ),
         ],
         [
             "Вакцинировано",
-            stats.get("vaccinated_count", 0),
+            stats.get(
+                "vaccinated_count",
+                0
+            ),
         ],
         [
             "Стерилизовано",
-            stats.get("sterilized_count", 0),
+            stats.get(
+                "sterilized_count",
+                0
+            ),
         ],
         [
             "Требуют внимания по вакцинации",
-            stats.get("need_vacc_count", 0),
+            stats.get(
+                "need_vacc_count",
+                0
+            ),
         ],
     ]
-    stats_table = Table(stats_data, colWidths=[90 * mm, 45 * mm])
+
+    stats_table = Table(
+        stats_data,
+        colWidths=[
+            90 * mm,
+            45 * mm
+        ]
+    )
 
     stats_table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), regular_font),
-                ("FONTNAME", (0, 0), (-1, 0), bold_font),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EFA7C5")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E6CDD7")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, -1),
+                    regular_font
+                ),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    bold_font
+                ),
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(
+                        "#EFA7C5"
+                    )
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    colors.white
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.5,
+                    colors.HexColor(
+                        "#E6CDD7"
+                    )
+                ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "TOP"
+                ),
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                ),
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                ),
             ]
         )
     )
 
-    story.append(stats_table)
+    story.append(
+        stats_table
+    )
 
-    story.append(PageBreak())
+    story.append(
+        PageBreak()
+    )
 
-    story.append(Paragraph("Список котиков", heading_style))
+    story.append(
+        Paragraph(
+            "Список котиков",
+            heading_style
+        )
+    )
+
 
     cat_rows = [
         [
-            Paragraph("ID", small_style),
-            Paragraph("Имя", small_style),
-            Paragraph("Возраст", small_style),
-            Paragraph("Порода", small_style),
-            Paragraph("Пол", small_style),
-            Paragraph("Статус", small_style),
-            Paragraph("Поступление", small_style),
-            Paragraph("Вакцина", small_style),
-            Paragraph("Стерил.", small_style),
+            Paragraph(
+                "ID",
+                small_style
+            ),
+            Paragraph(
+                "Имя",
+                small_style
+            ),
+            Paragraph(
+                "Возраст",
+                small_style
+            ),
+            Paragraph(
+                "Порода",
+                small_style
+            ),
+            Paragraph(
+                "Пол",
+                small_style
+            ),
+            Paragraph(
+                "Статус",
+                small_style
+            ),
+            Paragraph(
+                "Поступление",
+                small_style
+            ),
+            Paragraph(
+                "Вакцина",
+                small_style
+            ),
+            Paragraph(
+                "Стерил.",
+                small_style
+            ),
         ]
     ]
 
     for cat in cats:
+
         cat_rows.append(
             [
-                str(cat.id),
-                Paragraph(str(_pdf_escape(cat.name) or ""), small_style),
-                str(cat.age if cat.age is not None else ""),
-                Paragraph(str(_pdf_escape(cat.breed) or ""), small_style),
-                Paragraph(str(_pdf_escape(cat.gender) or ""), small_style),
-                Paragraph(str(_pdf_escape(cat.status) or ""), small_style),
-                (cat.arrival_date.strftime("%d.%m.%Y") if cat.arrival_date else ""),
-                ("Да" if cat.is_vaccinated else "Нет"),
-                ("Да" if cat.is_sterilized else "Нет"),
+                str(
+                    cat.id
+                ),
+                Paragraph(
+                    str(
+                        _pdf_escape(cat.name)
+                        or ""
+                    ),
+                    small_style
+                ),
+                str(
+                    cat.age
+                    if cat.age is not None
+                    else ""
+                ),
+                Paragraph(
+                    str(
+                        _pdf_escape(cat.breed)
+                        or ""
+                    ),
+                    small_style
+                ),
+                Paragraph(
+                    str(
+                        _pdf_escape(cat.gender)
+                        or ""
+                    ),
+                    small_style
+                ),
+                Paragraph(
+                    str(
+                        _pdf_escape(cat.status)
+                        or ""
+                    ),
+                    small_style
+                ),
+                (
+                    cat.arrival_date.strftime(
+                        "%d.%m.%Y"
+                    )
+                    if cat.arrival_date
+                    else ""
+                ),
+                (
+                    "Да"
+                    if cat.is_vaccinated
+                    else "Нет"
+                ),
+                (
+                    "Да"
+                    if cat.is_sterilized
+                    else "Нет"
+                ),
             ]
         )
 
@@ -508,35 +968,96 @@ def generate_pdf_report(cats, stats=None):
             27 * mm,
             22 * mm,
             22 * mm,
-        ],
+        ]
     )
 
     cats_table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), regular_font),
-                ("FONTNAME", (0, 0), (-1, 0), bold_font),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EFA7C5")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#E7D6DD")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("ALIGN", (0, 0), (0, -1), "CENTER"),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, -1),
+                    regular_font
+                ),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    bold_font
+                ),
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(
+                        "#EFA7C5"
+                    )
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    colors.white
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.35,
+                    colors.HexColor(
+                        "#E7D6DD"
+                    )
+                ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "TOP"
+                ),
+                (
+                    "ALIGN",
+                    (0, 0),
+                    (0, -1),
+                    "CENTER"
+                ),
                 (
                     "ROWBACKGROUNDS",
                     (0, 1),
                     (-1, -1),
-                    [colors.white, colors.HexColor("#FFF7FA")],
+                    [
+                        colors.white,
+                        colors.HexColor(
+                            "#FFF7FA"
+                        )
+                    ]
                 ),
-                ("TOPPADDING", (0, 0), (-1, -1), 4),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
             ]
         )
     )
 
-    story.append(cats_table)
+    story.append(
+        cats_table
+    )
 
-    document.build(story)
+    document.build(
+        story
+    )
 
-    buffer.seek(0)
+    buffer.seek(
+        0
+    )
 
     return buffer

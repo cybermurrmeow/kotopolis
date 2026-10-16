@@ -51,7 +51,7 @@
             <fieldset class="kp-picker-group">
                 <legend>Возраст</legend>
                 <div class="kp-picker-options">
-                    <button type="button" class="kp-compatibility-chip" data-group="age" data-value="0-2" aria-pressed="false"><span>0-2 года</span><span class="kp-facet-count">…</span></button>
+                    <button type="button" class="kp-compatibility-chip" data-group="age" data-value="0-2" aria-pressed="false"><span>0–2 года</span><span class="kp-facet-count">…</span></button>
                     <button type="button" class="kp-compatibility-chip" data-group="age" data-value="3-5" aria-pressed="false"><span>3-5 лет</span><span class="kp-facet-count">…</span></button>
                     <button type="button" class="kp-compatibility-chip" data-group="age" data-value="6+" aria-pressed="false"><span>6+ лет</span><span class="kp-facet-count">…</span></button>
                 </div>
@@ -287,7 +287,7 @@
             {% endif %}
 
 
-            {% if current_user.role == 'admin' %}
+            {% if current_user.role in ['admin'] %}
 
             <a
                 href="{{ url_for('add_cat') }}"
@@ -373,12 +373,11 @@
             ></a>
 
             <div class="kp-cat-media">
-                {% set media = cat_media_sources(cat) %}
                 <img
-                    src="{{ media.poster }}"
-                    data-poster-src="{{ media.poster }}"
-                    data-animated-src="{{ media.animated }}"
-                    data-fallback="{{ media.original }}"
+                    src="{{ url_for('static', filename='uploads/cat_media/catalog_previews/cat-' ~ ('%02d'|format(cat.id)) ~ '-anim.webp') }}"
+                    data-poster-src="{{ url_for('static', filename='uploads/cat_media/catalog_previews/cat-' ~ ('%02d'|format(cat.id)) ~ '-poster.webp') }}"
+                    data-animated-src="{{ url_for('static', filename='uploads/cat_media/catalog_previews/cat-' ~ ('%02d'|format(cat.id)) ~ '-anim.webp') }}"
+                    data-fallback="{% if cat.photo_path %}{% if cat.photo_path.startswith('http://') or cat.photo_path.startswith('https://') %}{{ cat.photo_path }}{% else %}{{ url_for('static', filename=cat.photo_path) }}{% endif %}{% endif %}"
                     alt="{{ cat.name }}"
                     loading="lazy"
                     class="kp-cat-image kp-media-fallback"
@@ -454,6 +453,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/catalog-v2.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/catalog-v2.js', v='20261015-220639') }}" defer></script>
 <script src="{{ url_for('static', filename='js/catalog-compatibility.js', v='20261003-2') }}" defer></script>
 {% endblock %}

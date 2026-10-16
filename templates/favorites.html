@@ -48,12 +48,9 @@
             ></a>
 
             <div class="kp-favorite-media">
-                {% set media = cat_media_sources(cat) %}
                 <img
-                    src="{{ media.animated }}"
-                    data-poster-src="{{ media.poster }}"
-                    data-animated-src="{{ media.animated }}"
-                    data-fallback="{{ media.original }}"
+                    src="{{ url_for('static', filename='uploads/cat_media/catalog_previews/cat-' ~ ('%02d'|format(cat.id)) ~ '-anim.webp') }}"
+                    data-fallback="{% if cat.photo_path %}{{ url_for('static', filename=cat.photo_path) }}{% endif %}"
                     alt="{{ cat.name }}"
                     loading="lazy"
                     class="kp-favorite-image kp-media-fallback"

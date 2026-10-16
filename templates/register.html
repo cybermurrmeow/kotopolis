@@ -8,10 +8,12 @@
             <h2>Знакомство <br>начинается здесь.</h2>
             <p>У каждого котика свой характер. У тебя будет время узнать его.</p>
         </div>
-        <svg class="kp-auth3-cat" viewBox="0 0 360 230" fill="none" aria-hidden="true">
-            <path d="M47 188h267M84 180c-18-5-26-19-22-34 3-11 14-16 23-11M100 181c-8-20-4-43 12-59l-3-37 30 15c17-8 38-8 54 0l30-15-4 37c13 12 21 28 23 46 23-25 65-18 72 7 6 21-17 28-35 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M143 128h6m33 0h6m-24 13 5 4 5-4m-49 17-29-6m28 16-30 5m97-15 29-6m-28 16 30 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
+                <img
+            class="kp-auth3-cat kp-auth3-cat-gif"
+            src="{{ url_for('static', filename='img/login-cat.gif') }}"
+            alt=""
+            aria-hidden="true"
+        >
         <ul class="kp-auth3-benefits"><li>Сохраняй котиков, которые тебе близки</li><li>Следи за своими заявками</li><li>Возвращайся к избранному</li></ul>
     </aside>
     <div class="kp-auth3-panel">

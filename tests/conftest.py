@@ -1,54 +1,101 @@
 import os
-import sys
 from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-os.environ["SECRET_KEY"] = "test-only-secret-key"
-# This suite owns only an in-memory database, never a configurable database.
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ["COOKIE_SECURE"] = "false"
-os.environ["RATELIMIT_ENABLED"] = "false"
-
-from app import app as flask_app  # noqa: E402
-from models import db  # noqa: E402
+from dotenv import dotenv_values
+from flask_login import UserMixin
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 
 
-@pytest.fixture()
-def app(tmp_path):
-    original_config = dict(flask_app.config)
-    flask_app.config.update(
-        TESTING=True,
-        WTF_CSRF_ENABLED=False,
-        MAIL_SUPPRESS_SEND=True,
-        STORY_STATE_DIR=str(tmp_path / "story"),
-        UPLOAD_FOLDER=str(tmp_path / "media"),
-    )
+def configure_test_database():
+    config = Path("/root/kotopolis-test-db.env")
+    values = dotenv_values(config)
+    url = values.get("TEST_DATABASE_URL")
 
-    with flask_app.app_context():
-        test_engine = db.engine
-        if (
-            test_engine.url.get_backend_name() != "sqlite"
-            or test_engine.url.database != ":memory:"
-        ):
-            raise RuntimeError(
-                "Refusing to create or drop tables outside in-memory SQLite"
-            )
-        with test_engine.connect() as connection:
-            connection.exec_driver_sql("PRAGMA foreign_keys = ON")
-        db.create_all()
+    if not url:
+        raise RuntimeError("Test database is not configured")
+
+    parsed = make_url(url)
+
+    if (
+        parsed.database != "kotopolis_test"
+        or parsed.username != "kotopolis_test_runner"
+    ):
+        raise RuntimeError("Unsafe test database configuration")
+
+    engine = create_engine(url)
+
     try:
-        yield flask_app
+        with engine.connect() as connection:
+            database, username = connection.execute(
+                text("SELECT current_database(), current_user")
+            ).one()
+
+            if (
+                database != "kotopolis_test"
+                or username != "kotopolis_test_runner"
+            ):
+                raise RuntimeError("Wrong database connection")
     finally:
-        with flask_app.app_context():
-            db.session.remove()
-            db.metadata.drop_all(bind=test_engine)
-        flask_app.config.clear()
-        flask_app.config.update(original_config)
+        engine.dispose()
+
+    os.environ["DATABASE_URL"] = url
 
 
-@pytest.fixture()
-def client(app):
+configure_test_database()
+
+from app import app
+from models import db
+
+
+class TestAccount(UserMixin):
+    def __init__(self, role="user", must_change_password=False):
+        self.id = -999999
+        self.username = "test_account"
+        self.email = "test@example.invalid"
+        self.role = role
+        self.email_confirmed = True
+        self.must_change_password = must_change_password
+        self.is_admin = role == "admin"
+        self.password = "test-only-password-hash"
+
+
+@pytest.fixture(autouse=True)
+def safe_test_settings(monkeypatch):
+    with app.app_context():
+        if db.engine.url.database != "kotopolis_test":
+            raise RuntimeError("Tests cannot use production database")
+
+    monkeypatch.setitem(app.config, "TESTING", True)
+    monkeypatch.setitem(app.config, "WTF_CSRF_ENABLED", False)
+
+
+@pytest.fixture
+def client():
     return app.test_client()
+
+
+@pytest.fixture
+def logged_in_client(monkeypatch):
+    def create(role="user", must_change_password=False):
+        account = TestAccount(
+            role=role,
+            must_change_password=must_change_password,
+        )
+
+        monkeypatch.setattr(
+            app.login_manager,
+            "_user_callback",
+            lambda user_id: account,
+        )
+
+        client = app.test_client()
+
+        with client.session_transaction() as session:
+            session["_user_id"] = str(account.id)
+            session["_fresh"] = True
+
+        return client
+
+    return create

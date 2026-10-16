@@ -33,6 +33,20 @@
         min-width: 100%;
     }
 
+    .kp-adoption-filter-form {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .kp-adoption-filter-form .kp-request-filter-field,
+    .kp-adoption-filter-form .form-select,
+    .kp-adoption-filter-form .btn {
+        width: 100%;
+        min-width: 0;
+    }
+
 }
 
 </style>
@@ -55,7 +69,7 @@
 
     <form
         method="GET"
-        class="d-flex gap-2"
+        class="d-flex gap-2 kp-adoption-filter-form"
     >
 
         <div class="kp-request-filter-field">
@@ -189,39 +203,6 @@
                                 {{ item.email }}
                             </div>
 
-                            {% if item.occupation %}
-                            <div class="mt-2">
-                                <strong>Род занятий:</strong>
-                                {{ item.occupation }}
-                            </div>
-                            {% endif %}
-
-                            {% if item.housing %}
-                            <div>
-                                <strong>Жильё:</strong>
-                                {{ item.housing }}
-                            </div>
-                            {% endif %}
-
-                            <div>
-                                <strong>Другие животные:</strong>
-                                {{ 'Да' if item.has_other_pets else 'Нет' }}
-                            </div>
-
-                            {% if item.experience %}
-                            <div class="mt-2">
-                                <strong>Опыт:</strong>
-                                {{ item.experience }}
-                            </div>
-                            {% endif %}
-
-                            {% if item.reason %}
-                            <div class="mt-2">
-                                <strong>Почему хочет взять котика:</strong>
-                                {{ item.reason }}
-                            </div>
-                            {% endif %}
-
                             {% if item.comment %}
                             <div class="mt-2">
                                 <strong>Комментарий:</strong>
@@ -296,7 +277,29 @@
                         {% endif %}
 
 
-                        <p class="small text-muted mt-2">Заявка сохраняется в истории.</p>
+                        {% if current_user.role == 'admin' %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'delete_adoption_request',
+                                request_id=item.id
+                            ) }}"
+                            class="mt-2"
+                            onsubmit="return confirm('Удалить эту заявку?');"
+                        >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <button
+                                type="submit"
+                                class="btn btn-outline-danger w-100"
+                            >
+                                Удалить
+                            </button>
+
+                        </form>
+
+                        {% endif %}
 
                     </div>
 

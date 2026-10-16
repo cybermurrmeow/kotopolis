@@ -2,12 +2,9 @@
 
 {% block title %}
 Редактирование профиля · Котополис
-{% endblock %}
-
-{% block scripts %}
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+(() => {
     "use strict";
 
     const email =
@@ -47,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     updateWarning();
-});
+})();
 </script>
 
 {% endblock %}
@@ -174,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </h1>
 
             <p class="mb-0">
-                Можно изменить логин и почту
+                Можно изменить логин, почту и информацию о себе
             </p>
 
         </div>
@@ -263,6 +260,36 @@ document.addEventListener("DOMContentLoaded", () => {
                     {% if errors.email %}
                     <div class="profile-error">
                         {{ errors.email }}
+                    </div>
+                    {% endif %}
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <label
+                        for="bio"
+                        class="form-label"
+                    >
+                        О себе
+                    </label>
+
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        class="form-control{% if errors.bio %} is-invalid{% endif %}"
+                        maxlength="600"
+                        placeholder="Например, люблю котиков и ищу нового друга 🐾"
+                    >{{ bio }}</textarea>
+
+                    <div class="profile-help">
+                        До 600 символов. Это поле можно оставить пустым.
+                    </div>
+
+                    {% if errors.bio %}
+                    <div class="profile-error">
+                        {{ errors.bio }}
                     </div>
                     {% endif %}
 

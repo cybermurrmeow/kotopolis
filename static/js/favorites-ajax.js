@@ -1,113 +1,514 @@
 (() => {
     "use strict";
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document
-        .querySelectorAll(".kp-favorite-image[data-poster-src]")
-        .forEach((image) => {
-            const source = reduceMotion
-                ? image.dataset.posterSrc
-                : image.dataset.animatedSrc;
-            if (source) image.src = source;
-        });
+    const favoriteFormSelector =
+        'form[action*="/favorite/"]';
 
-    let hideTimer;
-    function showError(message) {
-        let region = document.getElementById("kpFavoriteStatus");
-        if (!region) {
-            region = document.createElement("div");
-            region.id = "kpFavoriteStatus";
-            region.className = "kp-favorite-feedback";
-            region.setAttribute("role", "status");
-            region.setAttribute("aria-live", "polite");
-            document.body.append(region);
+
+    function updateFavoriteButton(
+        button,
+        active
+    ) {
+
+        if (!button) {
+            return;
         }
-        region.textContent = message;
-        region.dataset.type = "error";
-        region.hidden = false;
-        clearTimeout(hideTimer);
-        hideTimer = setTimeout(() => {
-            region.hidden = true;
-        }, 5000);
-    }
 
-    function updateButton(button, active) {
-        button.classList.toggle("active", active);
-        button.classList.toggle("is-favorite", active);
-        button.setAttribute("aria-pressed", String(active));
-        const label = active ? "Убрать из избранного" : "Добавить в избранное";
-        button.setAttribute("aria-label", label);
-        button.title = label;
-        const icon = button.querySelector("i");
+
+        button.classList.toggle(
+            "active",
+            active
+        );
+
+        button.classList.toggle(
+            "is-favorite",
+            active
+        );
+
+
+        button.setAttribute(
+            "aria-pressed",
+            active
+                ? "true"
+                : "false"
+        );
+
+
+        const label =
+            active
+                ? "Убрать из избранного"
+                : "Добавить в избранное";
+
+
+        button.setAttribute(
+            "aria-label",
+            label
+        );
+
+        button.setAttribute(
+            "title",
+            label
+        );
+
+
+        const icon =
+            button.querySelector(
+                "i"
+            );
+
+
         if (icon) {
-            for (const name of ["fa-solid", "fas"]) icon.classList.toggle(name, active);
-            for (const name of ["fa-regular", "far"])
-                icon.classList.toggle(name, !active);
+
+            icon.classList.toggle(
+                "fa-solid",
+                active
+            );
+
+            icon.classList.toggle(
+                "fas",
+                active
+            );
+
+            icon.classList.toggle(
+                "fa-regular",
+                !active
+            );
+
+            icon.classList.toggle(
+                "far",
+                !active
+            );
         }
-        const text = button.querySelector("[data-favorite-label]");
-        if (text) text.textContent = label;
+
+
+        const labelNode =
+            button.querySelector(
+                "[data-favorite-label]"
+            );
+
+
+        if (labelNode) {
+
+            labelNode.textContent =
+                label;
+        }
     }
+
+
+    function clearScrollPending() {
+
+        try {
+
+            sessionStorage.removeItem(
+                "kotopolis:scroll:pending"
+            );
+
+        } catch (_) {}
+    }
+
+
+    document.addEventListener(
+        "click",
+        (event) => {
+
+            const form =
+                event.target.closest(
+                    favoriteFormSelector
+                );
+
+
+            if (!form) {
+                return;
+            }
+
+
+            event.stopPropagation();
+
+        },
+        true
+    );
+
 
     document.addEventListener(
         "submit",
         async (event) => {
-            const form = event.target.closest('form[action*="/favorite/"]');
-            if (!form) return;
+
+            const form =
+                event.target.closest(
+                    favoriteFormSelector
+                );
+
+
+            if (!form) {
+                return;
+            }
+
+
             event.preventDefault();
             event.stopImmediatePropagation();
-            const button = form.querySelector("button[type=submit], button");
-            if (!button || button.disabled) return;
-            button.disabled = true;
-            button.setAttribute("aria-busy", "true");
+
+            clearScrollPending();
+
+
+            const button =
+                form.querySelector(
+                    'button[type="submit"], button'
+                );
+
+
+            if (
+                !button
+                ||
+                button.dataset.favoriteBusy
+                ===
+                "1"
+            ) {
+                return;
+            }
+
+
+            button.dataset.favoriteBusy =
+                "1";
+
+            button.disabled =
+                true;
+
 
             try {
-                const response = await fetch(form.action, {
-                    method: "POST",
-                    body: new FormData(form),
-                    credentials: "same-origin",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        Accept: "application/json",
-                    },
-                });
-                if (response.redirected) {
-                    window.location.assign(response.url);
-                    return;
-                }
-                const data = await response.json();
-                if (!response.ok || data.success !== true) {
+
+                const response =
+                    await fetch(
+                        form.action,
+                        {
+                            method: "POST",
+
+                            body:
+                                new FormData(
+                                    form
+                                ),
+
+                            credentials:
+                                "same-origin",
+
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                let data = null;
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (_) {}
+
+
+                if (
+                    !response.ok
+                    ||
+                    !data
+                    ||
+                    data.success
+                    !== true
+                ) {
+
                     throw new Error(
-                        data.error ||
-                            "Не удалось сохранить избранное. Попробуй ещё раз."
+                        data?.error
+                        ||
+                        (
+                            "HTTP "
+                            +
+                            response.status
+                        )
                     );
                 }
-                updateButton(button, Boolean(data.is_favorite));
-                if (!reduceMotion && typeof button.animate === "function") {
+
+
+                updateFavoriteButton(
+                    button,
+                    Boolean(
+                        data.is_favorite
+                    )
+                );
+
+
+                if (
+                    typeof button.animate
+                    ===
+                    "function"
+                ) {
+
                     button.animate(
                         [
-                            { transform: "scale(1)" },
-                            { transform: "scale(.9)" },
-                            { transform: "scale(1)" },
+                            {
+                                transform:
+                                    "scale(1)"
+                            },
+                            {
+                                transform:
+                                    "scale(.9)"
+                            },
+                            {
+                                transform:
+                                    "scale(1)"
+                            }
                         ],
-                        { duration: 140, easing: "ease-out" }
+                        {
+                            duration: 140,
+                            easing: "ease-out"
+                        }
                     );
                 }
-                const card = form.closest(".kp-favorite-card");
-                if (card && !data.is_favorite) {
-                    // Reload the favorites page so its count and empty state agree with the DB.
-                    window.location.reload();
-                }
+
+
             } catch (error) {
-                showError(
-                    error instanceof SyntaxError
-                        ? "Сессия устарела. Обнови страницу и попробуй ещё раз."
-                        : error.message || "Проверь соединение и попробуй ещё раз."
+
+                console.error(
+                    "Favorite AJAX error:",
+                    error
                 );
+
+
             } finally {
-                button.disabled = false;
-                button.removeAttribute("aria-busy");
+
+                button.disabled =
+                    false;
+
+                delete button.dataset
+                    .favoriteBusy;
+
+                clearScrollPending();
             }
+
         },
         true
     );
+
 })();
+
+
+/* ==========================================================
+   FIX PACK 8F — FAVORITES NETWORK FEEDBACK
+   ========================================================== */
+
+(() => {
+    "use strict";
+
+    if (window.__kpFavoriteFeedbackInstalled) {
+        return;
+    }
+
+    window.__kpFavoriteFeedbackInstalled = true;
+
+    const originalFetch =
+        window.fetch.bind(window);
+
+
+    const getFavoriteButtons = () => [
+        ...document.querySelectorAll(
+            [
+                ".kp-heart-button",
+                "[data-favorite-button]",
+                ".favorite-button"
+            ].join(",")
+        ),
+    ];
+
+
+    const getStatusRegion = () => {
+
+        let region =
+            document.getElementById(
+                "kpFavoriteStatus"
+            );
+
+        if (region) {
+            return region;
+        }
+
+        region =
+            document.createElement("div");
+
+        region.id =
+            "kpFavoriteStatus";
+
+        region.className =
+            "kp-favorite-feedback";
+
+        region.setAttribute(
+            "role",
+            "status"
+        );
+
+        region.setAttribute(
+            "aria-live",
+            "polite"
+        );
+
+        region.hidden = true;
+
+        document.body.append(region);
+
+        return region;
+    };
+
+
+    let hideTimer = null;
+
+
+    const showFavoriteMessage = (
+        message,
+        type = "error"
+    ) => {
+
+        const region =
+            getStatusRegion();
+
+        region.textContent =
+            message;
+
+        region.dataset.type =
+            type;
+
+        region.hidden = false;
+
+
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+        }
+
+        hideTimer =
+            setTimeout(
+                () => {
+                    region.hidden = true;
+                },
+                5000
+            );
+    };
+
+
+    const setFavoriteBusy = (
+        busy
+    ) => {
+
+        getFavoriteButtons()
+            .forEach(
+                (button) => {
+
+                    if (busy) {
+
+                        if (
+                            !button.dataset
+                                .favoriteWasDisabled
+                        ) {
+                            button.dataset
+                                .favoriteWasDisabled =
+                                button.disabled
+                                    ? "1"
+                                    : "0";
+                        }
+
+                        button.disabled = true;
+
+                        button.setAttribute(
+                            "aria-busy",
+                            "true"
+                        );
+                    }
+
+                    else {
+
+                        const wasDisabled =
+                            button.dataset
+                                .favoriteWasDisabled
+                                === "1";
+
+                        button.disabled =
+                            wasDisabled;
+
+                        button.removeAttribute(
+                            "aria-busy"
+                        );
+
+                        delete button.dataset
+                            .favoriteWasDisabled;
+                    }
+                }
+            );
+    };
+
+
+    window.fetch = async (
+        input,
+        init
+    ) => {
+
+        const url =
+            typeof input === "string"
+                ? input
+                : input?.url || "";
+
+        const isFavoriteRequest =
+            /\/favorite(?:\/|$)/i.test(
+                url
+            );
+
+
+        if (!isFavoriteRequest) {
+            return originalFetch(
+                input,
+                init
+            );
+        }
+
+
+        setFavoriteBusy(true);
+
+
+        try {
+
+            const response =
+                await originalFetch(
+                    input,
+                    init
+                );
+
+
+            if (!response.ok) {
+
+                showFavoriteMessage(
+                    "Не удалось сохранить избранное. Попробуй ещё раз."
+                );
+            }
+
+
+            return response;
+        }
+
+        catch (error) {
+
+            showFavoriteMessage(
+                "Не удалось сохранить избранное. Проверь соединение и попробуй ещё раз."
+            );
+
+            throw error;
+        }
+
+        finally {
+
+            setFavoriteBusy(false);
+        }
+    };
+
+})();
+
+/* FIX PACK 8F FAVORITES */

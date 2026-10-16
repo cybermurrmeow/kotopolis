@@ -17,8 +17,7 @@ body {
 body {
     margin: 0;
     color: var(--text);
-    background:
-        radial-gradient(circle at top left, rgba(255, 182, 193, 0.18), transparent 32%),
+    background: radial-gradient(circle at top left, rgba(255, 182, 193, 0.18), transparent 32%),
         linear-gradient(180deg, var(--kp-theme-surface, #fffafd) 0%, var(--kp-theme-soft, #fff5f9) 100%);
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -32,11 +31,7 @@ a:hover {
 }
 
 .bg-pink {
-    background: linear-gradient(
-        135deg,
-        var(--pink) 0%,
-        var(--pink-dark) 100%
-    ) !important;
+    background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%) !important;
 }
 
 .text-pink {
@@ -54,7 +49,7 @@ a:hover {
 .btn-pink:hover {
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(255, 20, 147, 0.18);
+    box-shadow: 0 8px 20px rgba(255, 20, 147, .18);
 }
 
 .btn-outline-pink {
@@ -71,7 +66,7 @@ a:hover {
 
 .navbar-kotopolis {
     background: rgba(var(--kp-theme-surface-rgb, 255, 255, 255), 0.95);
-    box-shadow: 0 6px 18px rgba(197, 97, 146, 0.1);
+    box-shadow: 0 6px 18px rgba(197, 97, 146, .10);
     border-bottom: 1px solid rgba(var(--kp-theme-border-rgb, 255, 105, 180), 0.15);
     backdrop-filter: blur(10px);
 }
@@ -105,13 +100,13 @@ a:hover {
 .form-select {
     border-radius: 12px;
     border: 1px solid var(--kp-theme-border, #ecdbe4);
-    padding: 0.75rem 0.9rem;
+    padding: .75rem .9rem;
 }
 
 .form-control:focus,
 .form-select:focus {
     border-color: var(--pink);
-    box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.14);
+    box-shadow: 0 0 0 .2rem rgba(255, 105, 180, .14);
 }
 
 .dashboard-title {
@@ -152,15 +147,13 @@ a:hover {
 }
 
 .cat-card {
-    transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease;
+    transition: transform .18s ease, box-shadow .18s ease;
     height: 100%;
 }
 
 .cat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 18px 38px rgba(218, 95, 151, 0.17);
+    box-shadow: 0 18px 38px rgba(218, 95, 151, .17);
 }
 
 .cat-media {
@@ -223,7 +216,7 @@ a:hover {
 
 .detail-label {
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: .9rem;
 }
 
 .detail-value {

@@ -1,0 +1,76 @@
+
+@media (max-width: 600px) {
+  .kp-auth3-login .kp-auth3-scene {
+    position: relative !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 20px !important;
+  }
+
+  .kp-auth3-login .kp-auth3-cat-gif {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 140px !important;
+    object-fit: contain !important;
+    margin: 12px auto !important;
+    transform: none !important;
+  }
+
+  .kp-auth3-login .kp-auth3-scene-copy {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .kp-auth3-login .kp-auth3-scene-note {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+
+}
+
+
+@media (max-width: 1199.98px) {
+  .navbar-kotopolis .kp-theme-toggle {
+    position: static !important;
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    margin: 0 12px 0 auto !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .navbar-kotopolis .kp-theme-toggle {
+    position: fixed !important;
+  }
+}
+
+
+/* Mobile theme button in navbar */
+@media (max-width: 1199.98px) {
+  body .navbar.navbar-kotopolis .container > #theme-toggle {
+    position: static !important;
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+    margin: 0 12px 0 auto !important;
+    padding: 0 !important;
+    inset: auto !important;
+    transform: none !important;
+    float: none !important;
+    align-self: center !important;
+    z-index: auto !important;
+  }
+}
