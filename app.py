@@ -452,9 +452,9 @@ def send_confirmation_email(user):
         return True
 
     except Exception as error:
-        app.logger.exception(
-            "Ошибка отправки кода подтверждения: %s",
-            error,
+        app.logger.error(
+            "Ошибка отправки кода подтверждения (%s)",
+            type(error).__name__,
         )
 
         return False
@@ -538,7 +538,9 @@ def send_password_reset_email(user):
         return True
 
     except Exception as error:
-        app.logger.exception("Ошибка reset email: %s", error)
+        app.logger.error(
+            "Ошибка отправки письма восстановления (%s)", type(error).__name__
+        )
 
         return False
 
