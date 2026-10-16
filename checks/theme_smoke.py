@@ -281,8 +281,48 @@ def run(source, output):
                                 "width": width,
                             }
                         )
+                        assert "btn-close" in hit, (theme, width, hit)
+                        page.locator("#createUserModal .btn-close").click()
+                        expect(page.locator("#createUserModal")).to_be_hidden()
+                        page.locator("#createUserModal").evaluate(
+                            """el => {
+                                el.dataset.testShown = "false";
+                                el.addEventListener("shown.bs.modal", () => {
+                                    el.dataset.testShown = "true";
+                                }, {once: true});
+                            }"""
+                        )
+                        page.locator('[data-bs-target="#createUserModal"]').click()
+                        expect(page.locator("#createUserModal")).to_have_attribute(
+                            "data-test-shown", "true"
+                        )
                         page.keyboard.press("Escape")
+                        expect(page.locator("#createUserModal")).to_be_hidden()
                         expect(page.locator("#theme-toggle")).to_be_visible()
+                        page.locator('[data-bs-target="#createUserModal"]').click()
+                        modal = page.locator("#createUserModal")
+                        username = f"modal_{theme}_{width}"
+                        modal.locator('[name="username"]').fill(username)
+                        modal.locator('[name="email"]').fill(username + "@example.com")
+                        modal.locator('[name="password"]').fill("ModalCheck123")
+                        modal.locator('[name="role"]').select_option("user")
+                        with page.expect_response(
+                            lambda response: response.request.method == "POST"
+                            and response.url == origin + "/users/create"
+                        ) as created:
+                            modal.locator('button[type="submit"]').click()
+                        assert created.value.status == 302
+                        page.wait_for_url("**/users")
+                        expect(page.locator("#createUserModal")).to_be_hidden()
+                        with app.app_context():
+                            new_user = User.query.filter_by(username=username).one()
+                            assert new_user.role == "user"
+                            assert new_user.must_change_password is True
+                            assert new_user.email_confirmed is False
+                            assert new_user.check_password("ModalCheck123")
+                        report["checks"].append(
+                            f"{theme}/{width}: modal close, Escape, create user"
+                        )
                         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                         assert page.locator("#theme-toggle").bounding_box()["y"] < 1000
                         report["checks"].append(
@@ -352,15 +392,42 @@ def run(source, output):
                 page.goto(origin + "/login", wait_until="networkidle")
                 expect(page.locator("html")).to_have_attribute("data-theme", "dark")
                 restored.close()
-                blocked = browser.new_context()
-                blocked.add_init_script(
-                    "Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new Error('blocked'); }"
+                scrolling = browser.new_context(
+                    viewport={"width": 390, "height": 600}, reduced_motion="reduce"
                 )
-                page = blocked.new_page()
+                page = scrolling.new_page()
+                page.on("pageerror", lambda error: report["errors"].append(str(error)))
                 page.goto(origin + "/login", wait_until="networkidle")
-                page.locator("#theme-toggle").click()
-                expect(page.locator("html")).to_have_attribute("data-theme", "dark")
-                blocked.close()
+                page.evaluate("window.scrollTo(0, 180)")
+                page.wait_for_function(
+                    "Number(sessionStorage.getItem('kotopolis:scroll:/login')) === 180"
+                )
+                page.reload(wait_until="networkidle")
+                page.wait_for_function("Math.abs(window.scrollY - 180) <= 2")
+                page.goto(origin + "/register", wait_until="networkidle")
+                page.go_back(wait_until="networkidle")
+                page.wait_for_function("Math.abs(window.scrollY - 180) <= 2")
+                scrolling.close()
+                for block_storage in (
+                    "Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new Error('blocked'); }",
+                    "Object.defineProperty(window, 'sessionStorage', {get() { throw new DOMException('blocked', 'SecurityError'); }});",
+                ):
+                    blocked = browser.new_context()
+                    blocked.add_init_script(block_storage)
+                    page = blocked.new_page()
+                    page.on(
+                        "pageerror", lambda error: report["errors"].append(str(error))
+                    )
+                    page.goto(origin + "/login", wait_until="networkidle")
+                    page.reload(wait_until="networkidle")
+                    assert page.evaluate("history.scrollRestoration") == "auto"
+                    page.locator("#theme-toggle").click()
+                    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+                    page.goto(origin + "/register", wait_until="networkidle")
+                    page.go_back(wait_until="networkidle")
+                    assert page.evaluate("history.scrollRestoration") == "auto"
+                    expect(page.locator("#theme-toggle")).to_be_visible()
+                    blocked.close()
                 report["checks"].extend(
                     [
                         "default light",
@@ -372,6 +439,9 @@ def run(source, output):
                         "keyboard",
                         "reopened context",
                         "blocked storage",
+                        "scroll position after reload and back",
+                        "blocked storage after reload and back",
+                        "blocked sessionStorage getter after reload and back",
                     ]
                 )
                 assert not report["errors"], report["errors"]
