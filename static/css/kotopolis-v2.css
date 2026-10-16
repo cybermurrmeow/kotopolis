@@ -8844,10 +8844,18 @@ body.kp-ready main {
 
 .user-actions form:first-child .d-flex {
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.user-actions form:first-child button {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .user-actions .form-select {
     min-width: 150px;
+    width: auto;
+    flex: 1 1 auto;
 }
 
 .kp-danger-actions {

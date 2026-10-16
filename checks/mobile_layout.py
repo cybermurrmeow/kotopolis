@@ -165,6 +165,30 @@ def run(output, extended=False, browser_name=None):
                                             return t.top >= n.top && t.bottom <= n.bottom + 1;
                                         }"""
                                         ), (engine, width, path, "theme outside navbar")
+                                    if path == "/users":
+                                        for button in page.locator(
+                                            '.user-actions form:first-child button[type="submit"]'
+                                        ).all():
+                                            button.scroll_into_view_if_needed()
+                                            assert button.evaluate(
+                                                """el => {
+                                                const range = document.createRange();
+                                                range.selectNodeContents(el);
+                                                const lines = new Set([...range.getClientRects()]
+                                                    .filter(r => r.width > 0).map(r => Math.round(r.top)));
+                                                const r = el.getBoundingClientRect();
+                                                const card = el.closest('.user-card').getBoundingClientRect();
+                                                return lines.size === 1 && el.scrollWidth <= el.clientWidth
+                                                    && r.left >= card.left && r.right <= card.right
+                                                    && el.contains(document.elementFromPoint(r.x + r.width/2, r.y + r.height/2));
+                                                }"""
+                                            ), (
+                                                engine,
+                                                width,
+                                                theme,
+                                                "role button wrapped or covered",
+                                            )
+                                        page.evaluate("scrollTo(0, 0)")
                                     if path == "/login":
                                         assert page.evaluate(
                                             """() => {
