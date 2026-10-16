@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js', v='20261016-release') }}"></script>
 
     <title>{% block title %}Котополис{% endblock %}</title>
 
@@ -19,20 +19,20 @@
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css', v='20261015-1') }}"
+        href="{{ url_for('static', filename='css/style.css', v='20261016-release') }}"
     >
 
     {% block head %}{% endblock %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cat-natural.css', v='20261015-1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cat-natural.css', v='20261016-release') }}">
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='css/kotopolis-v2.css', v='20261016-role-layout') }}"
+        href="{{ url_for('static', filename='css/kotopolis-v2.css', v='20261016-release') }}"
     >
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/daily-story.css', v='20261015-1') }}"
+    href="{{ url_for('static', filename='css/daily-story.css', v='20261016-release') }}"
 >
 
 
@@ -42,7 +42,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-icon.png', v='20261004-1') }}">
     <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest', v='20261004-1') }}">
     <meta name="theme-color" content="#ff3b91">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css', v='20261015-mobile') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css', v='20261016-release') }}">
 
 </head>
 
@@ -261,16 +261,16 @@ document.addEventListener(
 
     
     <script
-        src="{{ url_for('static', filename='js/kotopolis-v2.js') }}"
+        src="{{ url_for('static', filename='js/kotopolis-v2.js', v='20261016-release') }}"
         defer
     ></script>
 
 <script
-    src="{{ url_for('static', filename='js/scroll-state.js') }}"
+    src="{{ url_for('static', filename='js/scroll-state.js', v='20261016-release') }}"
     defer
 ></script>
 <script
-    src="{{ url_for('static', filename='js/favorites-ajax.js') }}"
+    src="{{ url_for('static', filename='js/favorites-ajax.js', v='20261016-release') }}"
     defer
 ></script>
 </body>
