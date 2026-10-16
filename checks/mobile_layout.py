@@ -14,7 +14,7 @@ from playwright.sync_api import expect, sync_playwright
 from werkzeug.serving import make_server
 
 
-def run(output):
+def run(output, extended=False, browser_name=None):
     source = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(source))
     output.mkdir(parents=True, exist_ok=True)
@@ -84,7 +84,10 @@ def run(output):
         origin = f"http://127.0.0.1:{server.server_port}"
         try:
             with sync_playwright() as playwright:
-                for engine in ("chromium", "webkit"):
+                engines = ("chromium", "webkit")
+                if browser_name:
+                    engines = (browser_name,)
+                for engine in engines:
                     browser = getattr(playwright, engine).launch()
                     for theme in ("light", "dark"):
                         for role, cookie in identities.items():
@@ -112,11 +115,25 @@ def run(output):
                                 if role == "public"
                                 else (320, 430, 1440)
                             )
-                            for width in widths:
-                                page.set_viewport_size({"width": width, "height": 844})
+                            viewports = (
+                                [
+                                    (390, 844),
+                                    (844, 390),
+                                    (768, 1024),
+                                    (1024, 768),
+                                    (1920, 1080),
+                                ]
+                                if extended
+                                else [(width, 844) for width in widths]
+                            )
+                            for width, height in viewports:
+                                page.set_viewport_size(
+                                    {"width": width, "height": height}
+                                )
                                 for path in paths[role]:
                                     if (
                                         role == "public"
+                                        and not extended
                                         and path != "/login"
                                         and width not in (320, 430, 1440)
                                     ):
@@ -130,6 +147,11 @@ def run(output):
                                     expect(page.locator("html")).to_have_attribute(
                                         "data-theme", theme
                                     )
+                                    await_layout = """() => new Promise(resolve => {
+                                        requestAnimationFrame(() => requestAnimationFrame(resolve));
+                                    })"""
+                                    page.evaluate("document.fonts.ready")
+                                    page.evaluate(await_layout)
                                     assert not page.evaluate(
                                         "document.documentElement.scrollWidth > innerWidth"
                                     ), (engine, width, path)
@@ -169,11 +191,25 @@ def run(output):
                                             ),
                                             full_page=True,
                                         )
+                                    elif (
+                                        extended
+                                        and engine == "chromium"
+                                        and width in (768, 1920)
+                                    ):
+                                        name = path.strip("/").replace("/", "-")
+                                        page.screenshot(
+                                            path=str(
+                                                output
+                                                / f"{engine}-{theme}-{width}-{name}.png"
+                                            ),
+                                            full_page=True,
+                                        )
                                     report["pages"].append(
                                         {
                                             "engine": engine,
                                             "theme": theme,
                                             "width": width,
+                                            "height": height,
                                             "path": path,
                                         }
                                     )
@@ -197,4 +233,7 @@ def run(output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    run(parser.parse_args().output.resolve())
+    parser.add_argument("--extended", action="store_true")
+    parser.add_argument("--browser", choices=("chromium", "webkit", "firefox"))
+    args = parser.parse_args()
+    run(args.output.resolve(), args.extended, args.browser)

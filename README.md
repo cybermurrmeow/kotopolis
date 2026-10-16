@@ -87,16 +87,20 @@ Pytest всегда использует SQLite в памяти. Он игнор
 
 ```bash
 python checks/postgres_review.py
+python checks/postgres_adoption_concurrency.py
 ```
 
-Нужна переменная `REVIEW_POSTGRES_URL`, указывающая на локальную БД с суффиксом `_review`. Инструмент отказывается подключаться к удалённым адресам и не использует `.env`. Он создаёт и удаляет только свои случайные схемы; существующие таблицы не затрагивает. Для одноразового PostgreSQL 17 можно использовать `compose.review.yml`, предварительно задав `REVIEW_POSTGRES_PASSWORD`. Данные контейнера хранятся в tmpfs.
+Нужна переменная `REVIEW_POSTGRES_URL`, указывающая на отдельную локальную БД с суффиксом `_review`; драйвер задаётся как `postgresql+psycopg2`. Для проверки конкурентных заявок обязательно задайте порт, отличный от 5432. Инструменты отказываются подключаться к удалённым адресам и не используют `.env`. Они создают и удаляют только свои случайные схемы; существующие таблицы не затрагивают. Для одноразового PostgreSQL 17 можно использовать `compose.review.yml`, предварительно задав `REVIEW_POSTGRES_PASSWORD`. Данные контейнера хранятся в tmpfs.
 
 Воспроизводимый браузерный smoke-test:
 
 ```bash
 python -m pip install -r requirements-browser.txt
-python -m playwright install chromium
+python -m playwright install chromium webkit
 python checks/browser_smoke.py --output ../browser-results
+python checks/theme_smoke.py --output ../theme-results
+python checks/mobile_layout.py --output ../mobile-results
+python checks/mobile_layout.py --extended --output ../extended-results
 ```
 
 Проверка использует временную SQLite, синтетические аккаунты, миграции и локальный HTTP-сервер. Проверяет CSRF в реальном браузере, гостевой вход, пользовательские/административные страницы, предупреждение при смене email и AJAX избранного. Скриншоты и JSON сохраняются вне исходников. Проверка PostgreSQL не заменяет функциональный или нагрузочный прогон на PostgreSQL.
