@@ -110,6 +110,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "sqlite:///kotopolis.db",
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"hide_parameters": True}
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads", "cat_media")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp.mail.ru")
@@ -188,7 +189,7 @@ def load_user(user_id):
         return None
 
     except (ValueError, SQLAlchemyError) as error:
-        app.logger.exception("Ошибка загрузки пользователя: %s", error)
+        app.logger.error("Ошибка загрузки пользователя (%s)", type(error).__name__)
 
         return None
 
@@ -269,7 +270,7 @@ def favorite_return_url():
 @app.errorhandler(SQLAlchemyError)
 def handle_database_error(error):
     db.session.rollback()
-    app.logger.error("Database transaction failed", exc_info=error)
+    app.logger.error("Database transaction failed (%s)", type(error).__name__)
     return render_template("500.html", error_code=503), 503
 
 
@@ -1571,7 +1572,9 @@ def add_cat():
                 flash(str(exc), "danger")
 
             else:
-                app.logger.exception("Database error while adding cat")
+                app.logger.error(
+                    "Database error while adding cat (%s)", type(exc).__name__
+                )
 
                 flash(
                     "Не удалось сохранить котика. "
@@ -1626,9 +1629,10 @@ def edit_cat(cat_id):
                 flash(str(exc), "danger")
 
             else:
-                app.logger.exception(
-                    "Database error while editing cat id=%s",
+                app.logger.error(
+                    "Database error while editing cat id=%s (%s)",
                     cat_id,
+                    type(exc).__name__,
                 )
 
                 flash(
@@ -2240,11 +2244,12 @@ def edit_profile():
 
         try:
             db.session.commit()
-        except SQLAlchemyError:
+        except SQLAlchemyError as error:
             db.session.rollback()
-            app.logger.exception(
-                "Failed to update profile for user_id=%s",
+            app.logger.error(
+                "Failed to update profile for user_id=%s (%s)",
                 current_user.id,
+                type(error).__name__,
             )
             flash("Не удалось сохранить профиль. Попробуйте ещё раз.", "danger")
             return render_template(
