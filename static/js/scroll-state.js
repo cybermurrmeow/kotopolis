@@ -1,21 +1,7 @@
 (() => {
     "use strict";
 
-    /*
-     * Kotopolis scroll state
-     *
-     * Сохраняет положение страницы:
-     * - при submit форм;
-     * - при reload;
-     * - при фильтрации через GET;
-     * - при POST -> redirect обратно;
-     * - при browser Back / Forward;
-     * - на desktop / mobile / tablet.
-     *
-     * Для разных страниц используются разные scroll positions.
-     * Query string намеренно не входит в ключ:
-     * /cats?status=... сохраняет положение каталога.
-     */
+    // Фильтры одного каталога используют общую позицию: ключ содержит только pathname.
 
     try {
         window.sessionStorage.getItem("");
@@ -84,11 +70,6 @@
 
     window.addEventListener("beforeunload", save);
 
-    /*
-     * Перед submit запоминаем,
-     * с какой страницы пользователь ушёл.
-     */
-
     document.addEventListener(
         "submit",
         () => {
@@ -109,14 +90,6 @@
         },
         true
     );
-
-    /*
-     * То же для внутренних ссылок.
-     *
-     * Это особенно важно для Back:
-     * браузер вернёт пользователя именно
-     * к карточке/блоку, с которого он ушёл.
-     */
 
     document.addEventListener(
         "click",
@@ -153,12 +126,7 @@
 
             save();
 
-            /*
-             * Если действие остаётся
-             * на той же странице
-             * (например фильтр каталога),
-             * после загрузки возвращаем Y.
-             */
+            // При смене фильтра возвращаемся к прежнему месту каталога.
 
             if (url.pathname === location.pathname) {
                 try {
@@ -208,20 +176,11 @@
     const getTarget = () => {
         let target = null;
 
-        /*
-         * Back / Forward и reload.
-         */
-
         const navType = navigationType();
 
         if (navType === "back_forward" || navType === "reload") {
             target = getY();
         }
-
-        /*
-         * Submit или фильтрация,
-         * вернувшие нас на тот же pathname.
-         */
 
         try {
             const raw = sessionStorage.getItem(PENDING);
@@ -252,11 +211,7 @@
         return;
     }
 
-    /*
-     * Пока восстанавливаем position,
-     * временно отключаем smooth scroll,
-     * чтобы страница не летела сверху вниз.
-     */
+    // На время восстановления отключаем плавную прокрутку.
 
     const html = document.documentElement;
 
@@ -277,11 +232,7 @@
         window.scrollTo(0, destination);
     };
 
-    /*
-     * Изображения и responsive layout
-     * могут менять высоту страницы после DOMContentLoaded,
-     * поэтому несколько коротких безопасных проходов.
-     */
+    // Повторяем после загрузки изображений, которые могут изменить высоту страницы.
 
     const attempts = [0, 20, 60, 140, 300, 600];
 

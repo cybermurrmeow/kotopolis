@@ -67,7 +67,7 @@
     <section class="kp-catalog-controls kp-quiet-controls" aria-label="Поиск котиков">
         <form method="GET" action="{{ url_for('cats') }}" id="catalogFilterForm">
 
-            {# Сохраняем серверные фильтры при поиске и quick-status #}
+            {# Не сбрасываем фильтры при новом поиске. #}
             <input type="hidden" id="statusFilter" name="status" value="{{ status|default('') }}">
             <input type="hidden" id="genderFilter" name="gender" value="{{ gender|default('') }}">
             <input type="hidden" id="moodFilter" name="mood" value="{{ mood|default('') }}">
