@@ -17,7 +17,9 @@
      * /cats?status=... сохраняет положение каталога.
      */
 
-    if (!("sessionStorage" in window)) {
+    try {
+        window.sessionStorage.getItem("");
+    } catch (_) {
         return;
     }
 
@@ -34,15 +36,19 @@
     };
 
     const getY = (pathname = location.pathname) => {
-        const raw = sessionStorage.getItem(pageKey(pathname));
+        try {
+            const raw = sessionStorage.getItem(pageKey(pathname));
 
-        if (raw === null) {
+            if (raw === null) {
+                return null;
+            }
+
+            const value = Number(raw);
+
+            return Number.isFinite(value) ? value : null;
+        } catch (_) {
             return null;
         }
-
-        const value = Number(raw);
-
-        return Number.isFinite(value) ? value : null;
     };
 
     const save = () => {
