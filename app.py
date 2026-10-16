@@ -282,12 +282,7 @@ def _confirmation_resend_wait_seconds(
     user,
     cooldown_seconds=60,
 ):
-    """
-    Shared account-level cooldown for confirmation resends.
-
-    Returns 0 when a new message may be sent, otherwise the
-    remaining number of seconds.
-    """
+    """Секунды до повторной отправки кода, 0 если ждать не нужно."""
 
     sent_at = getattr(
         user,
@@ -313,10 +308,7 @@ def send_confirmation_email_with_cooldown(
     user,
     cooldown_seconds=60,
 ):
-    """
-    Resend wrapper that does not regenerate a code or reset
-    attempts while the cooldown is active.
-    """
+    """Во время ожидания не меняем код и счётчик попыток."""
 
     wait = _confirmation_resend_wait_seconds(
         user,
@@ -580,14 +572,7 @@ def handle_csrf_error(error):
 
 @app.before_request
 def enforce_confirmed_email_session():
-    """
-    Пользователь не должен сохранять доступ к закрытым
-    страницам после того, как его email стал неподтверждённым.
-
-    Например:
-    пользователь меняет email -> email_confirmed=False ->
-    текущая сессия немедленно перестаёт давать доступ.
-    """
+    """После смены почты закрываем доступ до её подтверждения."""
 
     if not current_user.is_authenticated:
         return None
@@ -647,9 +632,7 @@ def add_security_headers(response):
         "camera=(), " "microphone=(), " "geolocation=()"
     )
     response.headers["Strict-Transport-Security"] = "max-age=31536000"
-    # CSP учитывает текущий Bootstrap / Font Awesome CDN,
-    # inline CSS/JS существующего проекта,
-    # data: favicon и внешние HTTPS-картинки.
+    # В шаблонах есть inline-стили, скрипты и ресурсы Bootstrap/Font Awesome CDN.
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "base-uri 'self'; "
@@ -1528,7 +1511,7 @@ def apply_cat_form(cat, form):
         cat.adoption_date = None
         cat.shelter_days_frozen = None
 
-    # Save media only after all field/status/date checks.
+    # Сохраняем файл только после проверки полей и дат.
     media = save_cat_media(form, app.config["UPLOAD_FOLDER"])
 
     if media:

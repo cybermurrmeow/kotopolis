@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     __table_args__ = (
         db.Index("uq_users_username_lower", db.func.lower(username), unique=True),
     )
-    # Email is not unique because historical production data may contain duplicates.
+    # В старых аккаунтах email может повторяться.
     email = db.Column(db.String(120), nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50), nullable=False, default="user")
@@ -33,7 +33,7 @@ class User(db.Model, UserMixin):
     email_code_sent_at = db.Column(db.DateTime, nullable=True)
     security_question = db.Column(db.String(200), nullable=True)
     security_answer = db.Column(db.String(200), nullable=True)
-    # Kept for compatibility with existing accounts; it is not exposed in the UI.
+    # Старое поле, в формах не используется.
     bio = db.Column(db.Text, nullable=True)
     adoption_requests = db.relationship(
         "AdoptionRequest", back_populates="user", passive_deletes="all", lazy=True
